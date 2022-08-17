@@ -113,4 +113,5 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      */
     <S extends T> Iterable<S> persistAll(Iterable<S> entities);
 
+    <T> List<T> findAllByBuilder(SpecificationQueryBuilder builder);
 }

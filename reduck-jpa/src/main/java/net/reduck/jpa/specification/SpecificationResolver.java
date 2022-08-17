@@ -2,7 +2,7 @@ package net.reduck.jpa.specification;
 
 import net.reduck.jpa.specification.annotation.Distinct;
 import net.reduck.jpa.specification.annotation.SpecificationQuery;
-import net.reduck.jpa.specification.annotation.Subquery;
+import net.reduck.jpa.specification.annotation.SpecificationSubquery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -42,6 +42,13 @@ class SpecificationResolver<T> implements Specification<T> {
         this.target = queryCondition;
     }
 
+    public SpecificationResolver(List<QueryDescriptor> queryCondition, Class<T> entityClass) {
+        this.targetClass = Void.class;
+        this.entityReadMethods = getPropertiesAndGetter(entityClass);
+        this.conditions = queryCondition;
+        this.target = Void.class;
+    }
+
     @SuppressWarnings("NullableProblems")
     @Override
     @Nullable
@@ -69,7 +76,7 @@ class SpecificationResolver<T> implements Specification<T> {
             }
         }
 
-        if (AnnotationUtils.findAnnotation(targetClass, Subquery.class) != null) {
+        if (AnnotationUtils.findAnnotation(targetClass, SpecificationSubquery.class) != null) {
             javax.persistence.criteria.Subquery subquery = query.subquery(root.getJavaType());
             Root<T> subRoot = subquery.from(root.getJavaType());
             subquery.select(subRoot.get(id));

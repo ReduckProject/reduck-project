@@ -103,10 +103,9 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         Map<String, PropertyDescriptor> propertyDescriptorMap = SpecificationAnnotationIntrospector.getPropertyDescriptor(returnType);
         List<String> names = new ArrayList<>(propertyDescriptorMap.keySet());
         List<Selection> selections = names.stream().map(name -> root.get(name)).collect(Collectors.toList());
-        selections.add(root.get("info").get("email"));
-        selections.add(root.join("info", JoinType.LEFT).get("phoneNo"));
+        cq.multiselect(selections);
 
-        cq.multiselect(selections);  //using metamodel
+
 
         Predicate predicate = new SpecificationResolver(o, getDomainClass()).toPredicate(root, cq, em.getCriteriaBuilder());
         if(predicate != null){
@@ -123,7 +122,6 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
                 }
                 tranferReult.add(target);
             }
-
         }
 
         return tranferReult;
@@ -162,6 +160,11 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
             list.add(persist((BaseEntityInterface) baseEntity));
         }
         return list;
+    }
+
+    @Override
+    public List findAllByBuilder(SpecificationQueryBuilder builder) {
+        return findAll(builder.build(getDomainClass()));
     }
 
     class DeletedFalse {
