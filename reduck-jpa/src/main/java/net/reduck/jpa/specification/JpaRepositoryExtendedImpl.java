@@ -94,37 +94,65 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         return (List) findAllNoPageWith(o).stream().map(transfer).collect(Collectors.toList());
     }
 
+//    @Override
+//    @SneakyThrows
+//    public List findAllNoPageWith(Object o, Class returnType) {
+//        CriteriaQuery cq = em.getCriteriaBuilder().createTupleQuery();
+//        Root root = cq.from(getDomainClass());
+//
+//        Map<String, PropertyDescriptor> propertyDescriptorMap = SpecificationAnnotationIntrospector.getPropertyDescriptor(returnType);
+//        List<String> names = new ArrayList<>(propertyDescriptorMap.keySet());
+//        List<Selection> selections = names.stream().map(name -> root.get(name)).collect(Collectors.toList());
+//        cq.multiselect(selections);
+//
+//
+//
+//        Predicate predicate = new SpecificationResolver(o, getDomainClass()).toPredicate(root, cq, em.getCriteriaBuilder());
+//        if(predicate != null){
+//            cq.where(predicate);
+//        }
+//        List<Tuple> result = em.createQuery(cq).getResultList();
+//
+//        List tranferReult = new ArrayList();
+//        if(!CollectionUtils.isEmpty(result)){
+//            for(Tuple tuple : result){
+//                Object target = returnType.newInstance();
+//                for(int i = 0; i< names.size(); i++){
+//                    ReflectionUtils.invokeMethod(propertyDescriptorMap.get(names.get(i)).getWriteMethod(), target, tuple.get(i));
+//                }
+//                tranferReult.add(target);
+//            }
+//        }
+//
+//        return tranferReult;
+//    }
+
     @Override
     @SneakyThrows
     public List findAllNoPageWith(Object o, Class returnType) {
-        CriteriaQuery cq = em.getCriteriaBuilder().createTupleQuery();
+        CriteriaQuery cq = em.getCriteriaBuilder().createQuery(returnType);
         Root root = cq.from(getDomainClass());
 
-        Map<String, PropertyDescriptor> propertyDescriptorMap = SpecificationAnnotationIntrospector.getPropertyDescriptor(returnType);
-        List<String> names = new ArrayList<>(propertyDescriptorMap.keySet());
-        List<Selection> selections = names.stream().map(name -> root.get(name)).collect(Collectors.toList());
-        cq.multiselect(selections);
-
-
+        cq.multiselect(Arrays.stream(returnType.getDeclaredFields()).map(field -> root.get(field.getName())).collect(Collectors.toList()));
 
         Predicate predicate = new SpecificationResolver(o, getDomainClass()).toPredicate(root, cq, em.getCriteriaBuilder());
         if(predicate != null){
             cq.where(predicate);
         }
-        List<Tuple> result = em.createQuery(cq).getResultList();
+//        List<Tuple> result = em.createQuery(cq).getResultList();
+//
+//        List tranferReult = new ArrayList();
+//        if(!CollectionUtils.isEmpty(result)){
+//            for(Tuple tuple : result){
+//                Object target = returnType.newInstance();
+//                for(int i = 0; i< names.size(); i++){
+//                    ReflectionUtils.invokeMethod(propertyDescriptorMap.get(names.get(i)).getWriteMethod(), target, tuple.get(i));
+//                }
+//                tranferReult.add(target);
+//            }
+//        }
 
-        List tranferReult = new ArrayList();
-        if(!CollectionUtils.isEmpty(result)){
-            for(Tuple tuple : result){
-                Object target = returnType.newInstance();
-                for(int i = 0; i< names.size(); i++){
-                    ReflectionUtils.invokeMethod(propertyDescriptorMap.get(names.get(i)).getWriteMethod(), target, tuple.get(i));
-                }
-                tranferReult.add(target);
-            }
-        }
-
-        return tranferReult;
+        return em.createQuery(cq).getResultList();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package net.reduck.jpa.test.controller;
 
-import net.reduck.jpa.specification.PaginationResult;
+import net.reduck.jpa.specification.OperatorType;
+import net.reduck.jpa.specification.SpecificationQueryBuilder;
 import net.reduck.jpa.test.entity.PersonalInfo;
 import net.reduck.jpa.test.entity.User;
 import net.reduck.jpa.test.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,13 +29,15 @@ public class TestController {
     }
 
     @GetMapping(value = "/list")
-    public PaginationResult<User> list(UserListTO request) {
-        userRepository.findAllBy();
-        return userRepository.findAllWith(request, user -> user);
+    public Object list(UserListTO request) {
+        return userRepository.findAll();
     }
 
     @GetMapping(value = "/list2")
     public List<?> list2(UserListTO request) {
+//        userRepository.findAllByBuilder(SpecificationQueryBuilder.newInstance()
+//                .and("id").operate(OperatorType.IN).value(Arrays.asList(10,11)).match()
+//                .or("username").operate(OperatorType.CONTAIN).value("3").match());
         return userRepository.findAllNoPageWith(request, UserVO.class);
     }
 
