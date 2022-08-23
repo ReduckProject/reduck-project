@@ -1,0 +1,14 @@
+reduck:
+  ddns:
+    access:
+      access-key: exampale
+      secret-key: exampale
+    domain:
+      type: A
+      sub-domains: a,b,c,d,e,f
+      domain-name: exampale
+      region-id: cn-hangzhou
+    ip-service-url: https://www.taobao.com/help/getip.php
+spring:
+  profiles:
+    active: local

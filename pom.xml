@@ -21,6 +21,8 @@
     <modules>
         <module>reduck-jpa</module>
         <module>reduck-jpa-test</module>
+        <module>reduck-tool</module>
+        <module>reduck-ddns</module>
     </modules>
 
     <dependencyManagement>
