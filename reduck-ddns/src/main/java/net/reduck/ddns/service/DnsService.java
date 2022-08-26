@@ -3,7 +3,7 @@ package net.reduck.ddns.service;
 import java.util.List;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/8/15 11:38
  */
 public interface DnsService {

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/8/23 14:12
  */
 @Component
@@ -21,15 +21,16 @@ public class Executor implements InitializingBean {
     private final IpService ipService;
 
     @Override
+
     public void afterPropertiesSet() throws Exception {
-        while (true){
+        while (true) {
             try {
                 String ip = ipService.getSelfIp();
                 SystemProperties.Domain domain = properties.getDomain();
                 dnsService.refreshOrNewDns(domain.getSubDomains(), domain.getDomainName(), domain.getType(), ip);
-            }catch (Exception e){
+            } catch (Exception e) {
                 log.error(e.getMessage(), e);
-            }finally {
+            } finally {
                 Thread.sleep(1000 * 60 * 30L);
             }
 

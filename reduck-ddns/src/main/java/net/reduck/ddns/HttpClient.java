@@ -6,7 +6,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/8/15 11:21
  */
 public class HttpClient {

@@ -1,7 +1,7 @@
 package net.reduck.ddns.service;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/8/15 11:19
  */
 public interface IpService {

@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/8/15 11:41
  */
 public class AliyunDnsServiceImpl implements DnsService {

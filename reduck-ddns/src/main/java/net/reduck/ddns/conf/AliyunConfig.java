@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/8/23 13:51
  */
 @Configuration
@@ -30,7 +30,7 @@ public class AliyunConfig {
     }
 
     @Bean
-    public DnsService dnsService(IAcsClient iAcsClient){
+    public DnsService dnsService(IAcsClient iAcsClient) {
         return new AliyunDnsServiceImpl(iAcsClient);
     }
 }
