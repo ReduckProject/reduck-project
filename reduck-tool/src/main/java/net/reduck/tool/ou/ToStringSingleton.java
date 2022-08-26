@@ -6,12 +6,16 @@ import java.util.Arrays;
 
 /**
  * @author Reduck
- * @since 2022/8/23 11:33
+ * @since 2022/8/24 13:34
  */
-public class ToString {
+public enum ToStringSingleton {
+    INSTANCE;
 
+    public static void main(String[] args) {
+        ToStringSingleton.INSTANCE.of("");
+    }
 
-    public static String of(Object o) {
+    public String of(Object o) {
         try {
             StringBuilder sb = new StringBuilder();
             Arrays.stream(Introspector.getBeanInfo(o.getClass()).getPropertyDescriptors())
