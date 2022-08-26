@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/8/17 11:54
  */
 public class SpecificationQueryBuilder {
@@ -53,6 +53,10 @@ public class SpecificationQueryBuilder {
 //        return this;
 //    }
 
+    public static SpecificationQueryBuilder newInstance() {
+        return new SpecificationQueryBuilder();
+    }
+
     <T> Specification<T> build(Class<T> domainClass) {
         return new SpecificationResolver<>(this.descriptors, domainClass);
     }
@@ -60,7 +64,7 @@ public class SpecificationQueryBuilder {
     private void add(String property, Object value, OperatorType type, SpecificationQuery.OperatorType operatorType, String... join) {
         QueryDescriptor descriptor = new QueryDescriptor(property, property, value, type);
         descriptor.setLinkedType(operatorType);
-        if(join != null){
+        if (join != null) {
             descriptor.setJoinName(join);
             descriptor.setJoinType(JoinType.LEFT);
         }
@@ -77,27 +81,22 @@ public class SpecificationQueryBuilder {
         descriptors.add(descriptor);
     }
 
-    public Matcher and(String property){
+    public Matcher and(String property) {
         return new Matcher(this, property, SpecificationQuery.OperatorType.AND);
     }
 
-    public Matcher or(String property){
+    public Matcher or(String property) {
         return new Matcher(this, property, SpecificationQuery.OperatorType.OR);
     }
 
-    public static SpecificationQueryBuilder newInstance(){
-        return new SpecificationQueryBuilder();
-    }
-
     public static class Matcher {
+        private final SpecificationQueryBuilder builder;
         private String property;
         private Object value;
         private OperatorType type = OperatorType.EQUAL;
         private SpecificationQuery.OperatorType operatorType = SpecificationQuery.OperatorType.AND;
         private List<String> joins = new LinkedList<>();
         private JoinType joinType = JoinType.LEFT;
-
-        private final SpecificationQueryBuilder builder;
 
         public Matcher(SpecificationQueryBuilder builder) {
             this.builder = builder;
@@ -119,7 +118,7 @@ public class SpecificationQueryBuilder {
             return this;
         }
 
-        public Matcher operate(OperatorType type){
+        public Matcher operate(OperatorType type) {
             this.type = type;
             return this;
         }
@@ -142,7 +141,7 @@ public class SpecificationQueryBuilder {
             return this;
         }
 
-        public SpecificationQueryBuilder match(){
+        public SpecificationQueryBuilder match() {
             this.builder.add2(property, value, type, operatorType, joins);
             return this.builder;
         }
