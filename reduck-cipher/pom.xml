@@ -6,7 +6,6 @@
         <groupId>net.reduck</groupId>
         <artifactId>reduck-project</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <artifactId>reduck-cipher</artifactId>
     <version>0.0.1-SNAPSHOT</version>
