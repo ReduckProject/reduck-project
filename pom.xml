@@ -26,6 +26,7 @@
         <module>reduck-validator</module>
         <module>reduck-data-protection</module>
         <module>reduck-cipher</module>
+        <module>reduck-clickhouse-test</module>
     </modules>
 
     <dependencyManagement>
@@ -95,6 +96,13 @@
                 <groupId>com.secsmart</groupId>
                 <artifactId>duck-git-core</artifactId>
                 <version>${version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/ru.yandex.clickhouse/clickhouse-jdbc -->
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>0.3.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
