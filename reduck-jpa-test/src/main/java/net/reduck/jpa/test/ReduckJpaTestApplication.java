@@ -12,6 +12,8 @@ public class ReduckJpaTestApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ReduckJpaTestApplication.class, args);
+
+        System.out.println("---------------------");
     }
 
 }
