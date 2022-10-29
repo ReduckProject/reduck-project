@@ -32,3 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 /reduck-ddns/src/main/resources/application-local.yaml
+/reduck-jpa/.mvn/
+/reduck-validator/.mvn/
+/.mvn/

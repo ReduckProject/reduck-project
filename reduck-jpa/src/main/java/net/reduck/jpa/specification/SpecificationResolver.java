@@ -24,6 +24,8 @@ import static net.reduck.jpa.specification.SpecificationAnnotationIntrospector.g
  */
 @SuppressWarnings({"unchecked", "rawtypes", "cast", "AlibabaMethodTooLong", "Duplicates"})
 class SpecificationResolver<T> implements Specification<T> {
+    private static final long serialVersionUID = -1L;
+
     private static Logger log = LoggerFactory.getLogger(SpecificationResolver.class);
 
     private final Class targetClass;

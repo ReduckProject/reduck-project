@@ -2,36 +2,39 @@ package net.reduck.jpa.specification;
 
 import lombok.SneakyThrows;
 import net.reduck.jpa.entity.BaseEntityInterface;
+import net.reduck.jpa.specification.transform.TupleToBeanResultTransformer;
+import org.hibernate.query.internal.NativeQueryImpl;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ReflectionUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.Tuple;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.beans.PropertyDescriptor;
+import javax.sql.DataSource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
 
 /**
  * @author Reduck
  * @since 2019/8/19 17:03
  */
 @SuppressWarnings("all")
-public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extends SimpleJpaRepository implements JpaRepositoryExtend {
+public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extends SimpleJpaRepository implements JpaRepositoryExtend, ApplicationContextAware {
     private static final int BATCH_SIZE = 20000;
     private final JpaEntityInformation<T, ?> entityInformation;
     private final EntityManager em;
+    @Autowired
+    private DataSource dataSource;
 
     public JpaRepositoryExtendedImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
         super(entityInformation, entityManager);
@@ -145,6 +148,25 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
     @Override
     public List findAllByBuilder(SpecificationQueryBuilder builder) {
         return findAll(builder.build(getDomainClass()));
+    }
+
+    @Override
+    public List executeNativeSql(String sql, Class returnType) {
+//        em.createQuery(sql).getResultList();
+        Query query = em.createNativeQuery(sql);
+
+        if(!(query instanceof NativeQueryImpl)){
+            throw new UnsupportedOperationException();
+        }
+
+        return ((NativeQueryImpl) query)
+                .setResultTransformer(new TupleToBeanResultTransformer<>(returnType))
+                .getResultList();
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.dataSource = applicationContext.getBean(DataSource.class);
     }
 
     class DeletedFalse {

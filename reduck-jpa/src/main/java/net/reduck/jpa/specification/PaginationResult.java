@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
+@SuppressWarnings("unchecked")
 public class PaginationResult<R> {
     private long total;
     private int totalPages;

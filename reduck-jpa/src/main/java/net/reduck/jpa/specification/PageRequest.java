@@ -1,5 +1,6 @@
 package net.reduck.jpa.specification;
 
+import net.reduck.jpa.processor.PropertyEncryption;
 import net.reduck.jpa.specification.annotation.SpecificationIgnore;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;

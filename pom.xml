@@ -26,6 +26,9 @@
         <module>reduck-validator</module>
         <module>reduck-data-protection</module>
         <module>reduck-cipher</module>
+        <module>reduck-asm</module>
+        <module>reduck-oss</module>
+        <module>reduck-concurrent</module>
         <module>reduck-clickhouse-test</module>
     </modules>
 
@@ -98,11 +101,31 @@
                 <version>${version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>5.8.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>31.1-jre</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/ru.yandex.clickhouse/clickhouse-jdbc -->
             <dependency>
                 <groupId>ru.yandex.clickhouse</groupId>
                 <artifactId>clickhouse-jdbc</artifactId>
                 <version>0.3.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>sun.tools</groupId>
+                <artifactId>tools</artifactId>
+                <version>1.0</version>
+                <scope>system</scope>
+                <systemPath>${project.basedir}/../lib/tools.jar</systemPath>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -140,7 +163,21 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <encoding>UTF-8</encoding>
+                    <encoding>UTF8</encoding>
+                    <compilerArgs>
+                        <arg>-XDignore.symbol.file</arg>
+                    </compilerArgs>
+                    <!--保留参数名称-->
+                    <compilerArgument>-parameters</compilerArgument>
+                    <!--<compilerArguments>-->
+                    <!--<bootclasspath>${java.home}/lib/tools.jar</bootclasspath>-->
+                    <!--</compilerArguments>-->
+                    <!--<annotationProcessors>-->
+                    <!--<annotationProcessor>-->
+                    <!--net.reduck.asm.jsr269.TestProcessor-->
+                    <!--</annotationProcessor>-->
+                    <!--</annotationProcessors>-->
+                    <fork>true</fork>
                 </configuration>
             </plugin>
             <!-- 要将源码放上去，需要加入这个插件 -->
