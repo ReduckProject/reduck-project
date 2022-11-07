@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
@@ -34,6 +35,7 @@ class SpecificationResolver<T> implements Specification<T> {
     private final Map<String, Join> joinMap = new HashMap<>();
     private final String id = "id";
     private final Object target;
+    private final EscapeCharacter escapeCharacter = EscapeCharacter.DEFAULT;
 
     private Predicate predicateResult = null;
 
@@ -150,9 +152,9 @@ class SpecificationResolver<T> implements Specification<T> {
             // 包含
             case CONTAIN:
                 if (condition.ignoreCase) {
-                    predicate = (criteriaBuilder.like(criteriaBuilder.lower(getPath(condition, root)), "%" + escape(((String) condition.value).toLowerCase()) + "%"));
+                    predicate = (criteriaBuilder.like(criteriaBuilder.lower(getPath(condition, root)), "%" + escapeCharacter.escape(((String) condition.value).toLowerCase()) + "%"));
                 } else {
-                    predicate = criteriaBuilder.like(getPath(condition, root), "%" + escape(String.valueOf(condition.value)) + "%");
+                    predicate = criteriaBuilder.like(getPath(condition, root), "%" + escapeCharacter.escape(String.valueOf(condition.value)) + "%");
                 }
                 break;
 
@@ -318,6 +320,8 @@ class SpecificationResolver<T> implements Specification<T> {
      *
      * @param value 待转译字符
      *
+     * @deprecated
+     * @see SpecificationResolver#escapeCharacter
      * @return
      */
     private String escape(String value) {
