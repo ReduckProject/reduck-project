@@ -21,6 +21,8 @@ public class SystemProperties {
 
     private Access access;
 
+    private int period = 10;
+
     @Data
     public static class Domain {
         private String domainName;
