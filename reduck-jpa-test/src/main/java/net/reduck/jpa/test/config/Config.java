@@ -66,7 +66,7 @@ public class Config {
         return new WebMvcConfigurer() {
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
-                registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+//                registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
                 registry.addResourceHandler("/images/**").addResourceLocations("classpath:/images2/");
             }
         };
