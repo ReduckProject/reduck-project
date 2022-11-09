@@ -48,6 +48,12 @@
             </dependency>
 
             <dependency>
+                <groupId>net.reduck</groupId>
+                <artifactId>reduck-concurrent</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>javax.ws.rs</groupId>
                 <artifactId>jsr311-api</artifactId>
                 <version>1.1.1</version>
