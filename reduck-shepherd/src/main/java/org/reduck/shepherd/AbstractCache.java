@@ -3,7 +3,7 @@ package org.reduck.shepherd;
 import java.util.Objects;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/10/31 16:36
  */
 public abstract class AbstractCache {
