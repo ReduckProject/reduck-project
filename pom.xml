@@ -30,6 +30,7 @@
         <module>reduck-oss</module>
         <module>reduck-concurrent</module>
         <module>reduck-clickhouse-test</module>
+        <module>reduck-chat-server</module>
     </modules>
 
     <dependencyManagement>
