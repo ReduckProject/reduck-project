@@ -1,6 +1,6 @@
 package net.reduck.validator.annotation;
 
-import net.reduck.validator.IsPatternValidator;
+import net.reduck.validator.PatternValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -20,7 +20,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Repeatable(DateTime.List.class)
 @Documented
-@Constraint(validatedBy = IsPatternValidator.class)
+@Constraint(validatedBy = PatternValidator.class)
 public @interface DateTime {
 
     String message() default "{DateTime.Syntax.Exception}";
