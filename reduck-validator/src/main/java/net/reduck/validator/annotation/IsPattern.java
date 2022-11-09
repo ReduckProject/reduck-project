@@ -1,4 +1,6 @@
-package net.reduck.validator;
+package net.reduck.validator.annotation;
+
+import net.reduck.validator.IsPatternValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -11,26 +13,15 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 集合去重
- *
  * @author Reduck
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Repeatable(CollectionDistinct.List.class)
+@Repeatable(IsPattern.List.class)
 @Documented
-@Constraint(validatedBy = CollectionDistinctHelper.class)
-public @interface CollectionDistinct {
-
-    String message() default "";
-
-    /**
-     * 是否可以为null
-     * default : <code>false</code> 去除null
-     *
-     * @return
-     */
-    boolean nullable() default false;
+@Constraint(validatedBy = IsPatternValidator.class)
+public @interface IsPattern {
+    String message() default "{Pattern.Syntax.Exception}";
 
     Class<?>[] groups() default {};
 
@@ -40,6 +31,7 @@ public @interface CollectionDistinct {
     @Retention(RUNTIME)
     @Documented
     @interface List {
-        CollectionDistinct[] value();
+
+        IsPattern[] value();
     }
 }

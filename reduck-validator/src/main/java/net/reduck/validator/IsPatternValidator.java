@@ -1,5 +1,6 @@
 package net.reduck.validator;
 
+import net.reduck.validator.annotation.IsPattern;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintValidator;
