@@ -6,7 +6,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/11/9 15:11
  */
 public abstract class AbstractFixedDelayExecutor implements Runnable {

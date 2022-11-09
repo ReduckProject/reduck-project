@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/11/9 15:36
  */
 public class AbstractFixedDelayExecutorTest {
