@@ -1,4 +1,6 @@
-package net.reduck.validator;
+package net.reduck.validator.annotation;
+
+import net.reduck.validator.PatternValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -15,10 +17,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Repeatable(IsPattern.List.class)
+@Repeatable(Pattern.List.class)
 @Documented
-@Constraint(validatedBy = IsPatternValidator.class)
-public @interface IsPattern {
+@Constraint(validatedBy = PatternValidator.class)
+public @interface Pattern {
     String message() default "{Pattern.Syntax.Exception}";
 
     Class<?>[] groups() default {};
@@ -30,6 +32,6 @@ public @interface IsPattern {
     @Documented
     @interface List {
 
-        IsPattern[] value();
+        Pattern[] value();
     }
 }

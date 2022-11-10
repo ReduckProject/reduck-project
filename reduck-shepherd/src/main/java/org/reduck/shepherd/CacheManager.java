@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/10/31 17:29
  */
 public class CacheManager {

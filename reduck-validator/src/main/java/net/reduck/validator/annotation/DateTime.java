@@ -1,4 +1,6 @@
-package net.reduck.validator;
+package net.reduck.validator.annotation;
+
+import net.reduck.validator.PatternValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -11,26 +13,17 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 集合去重
- *
- * @author Reduck
+ * @author Gin
+ * @since 2022/11/9 17:17
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Repeatable(CollectionDistinct.List.class)
+@Repeatable(DateTime.List.class)
 @Documented
-@Constraint(validatedBy = CollectionDistinctHelper.class)
-public @interface CollectionDistinct {
+@Constraint(validatedBy = PatternValidator.class)
+public @interface DateTime {
 
-    String message() default "";
-
-    /**
-     * 是否可以为null
-     * default : <code>false</code> 去除null
-     *
-     * @return
-     */
-    boolean nullable() default false;
+    String message() default "{DateTime.Syntax.Exception}";
 
     Class<?>[] groups() default {};
 
@@ -40,6 +33,6 @@ public @interface CollectionDistinct {
     @Retention(RUNTIME)
     @Documented
     @interface List {
-        CollectionDistinct[] value();
+        DateTime[] value();
     }
 }

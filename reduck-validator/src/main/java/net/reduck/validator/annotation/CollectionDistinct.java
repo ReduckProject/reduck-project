@@ -1,4 +1,6 @@
-package net.reduck.validator;
+package net.reduck.validator.annotation;
+
+import net.reduck.validator.CollectionDistinctHelper;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -11,15 +13,26 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * 集合去重
+ *
  * @author Reduck
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Repeatable(IsIpv4.List.class)
+@Repeatable(CollectionDistinct.List.class)
 @Documented
-@Constraint(validatedBy = IsIpv4Validator.class)
-public @interface IsIpv4 {
-    String message() default "{Ipv4.Syntax.Exception}";
+@Constraint(validatedBy = CollectionDistinctHelper.class)
+public @interface CollectionDistinct {
+
+    String message() default "";
+
+    /**
+     * 是否可以为null
+     * default : <code>false</code> 去除null
+     *
+     * @return
+     */
+    boolean nullable() default false;
 
     Class<?>[] groups() default {};
 
@@ -29,8 +42,6 @@ public @interface IsIpv4 {
     @Retention(RUNTIME)
     @Documented
     @interface List {
-
-        IsIpv4[] value();
+        CollectionDistinct[] value();
     }
-
 }

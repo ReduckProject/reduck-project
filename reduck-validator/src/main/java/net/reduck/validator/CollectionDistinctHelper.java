@@ -1,5 +1,6 @@
 package net.reduck.validator;
 
+import net.reduck.validator.annotation.CollectionDistinct;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.ConstraintValidator;

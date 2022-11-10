@@ -25,13 +25,10 @@
             <systemPath>${project.basedir}/lib/tools.jar</systemPath>
         </dependency>
 
-
         <dependency>
-            <groupId>com.secsmart</groupId>
-            <artifactId>zmq</artifactId>
-            <version>1.9</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/zmq-1.9-SNAPSHOT.jar</systemPath>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-symbol-solver-core</artifactId>
+            <version>3.24.7</version>
         </dependency>
     </dependencies>
 

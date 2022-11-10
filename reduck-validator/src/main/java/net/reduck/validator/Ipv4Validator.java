@@ -1,16 +1,15 @@
 package net.reduck.validator;
 
+import net.reduck.validator.annotation.Ipv4;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * @author Reduck
  */
-public class IsPatternValidator implements ConstraintValidator<IsPattern, CharSequence> {
+public class Ipv4Validator implements ConstraintValidator<Ipv4, CharSequence> {
 
     @Override
     public boolean isValid(CharSequence value, ConstraintValidatorContext context) {
@@ -18,12 +17,6 @@ public class IsPatternValidator implements ConstraintValidator<IsPattern, CharSe
             return true;
         }
 
-        try {
-            Pattern.compile(value.toString());
-        } catch (PatternSyntaxException e) {
-            return false;
-        }
-
-        return true;
+        return value.toString().matches(PatternConstant.IP_V4);
     }
 }

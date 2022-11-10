@@ -30,6 +30,7 @@
         <module>reduck-oss</module>
         <module>reduck-concurrent</module>
         <module>reduck-clickhouse-test</module>
+        <module>reduck-chat-server</module>
     </modules>
 
     <dependencyManagement>
@@ -45,6 +46,12 @@
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-netty4-http</artifactId>
                 <version>3.0.0-M4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.reduck</groupId>
+                <artifactId>reduck-concurrent</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
