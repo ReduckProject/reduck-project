@@ -9,7 +9,7 @@ import javax.validation.ValidatorFactory;
 import java.util.Set;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/10/27 10:02
  */
 public class ValidatorTest {

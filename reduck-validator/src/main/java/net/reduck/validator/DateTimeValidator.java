@@ -8,7 +8,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.regex.Pattern;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/11/9 17:19
  */
 public class DateTimeValidator implements ConstraintValidator<DateTime, CharSequence> {
