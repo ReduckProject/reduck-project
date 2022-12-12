@@ -31,6 +31,7 @@
         <module>reduck-concurrent</module>
         <module>reduck-clickhouse-test</module>
         <module>reduck-chat-server</module>
+        <module>reduck-api-doc</module>
     </modules>
 
     <dependencyManagement>
@@ -133,6 +134,12 @@
                 <version>1.0</version>
                 <scope>system</scope>
                 <systemPath>${project.basedir}/../lib/tools.jar</systemPath>
+            </dependency>
+
+            <dependency>
+                <groupId>com.thoughtworks.qdox</groupId>
+                <artifactId>qdox</artifactId>
+                <version>2.0.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
