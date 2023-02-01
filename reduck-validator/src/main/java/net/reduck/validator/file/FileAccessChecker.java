@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2023/1/30 09:54
  */
 public class FileAccessChecker {
@@ -14,7 +14,7 @@ public class FileAccessChecker {
         try {
             File file = new File(parentPath);
 
-            if(!file.isDirectory()) {
+            if (!file.isDirectory()) {
                 throw new RuntimeException("File must be directory");
             }
             this.canonicalParentPath = file.getCanonicalPath() + File.separatorChar;
