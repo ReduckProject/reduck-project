@@ -32,6 +32,8 @@
         <module>reduck-clickhouse-test</module>
         <module>reduck-chat-server</module>
         <module>reduck-api-doc</module>
+        <module>reduck-goup</module>
+        <module>reduck-dynamic-proxy</module>
     </modules>
 
     <dependencyManagement>
@@ -140,6 +142,12 @@
                 <groupId>com.thoughtworks.qdox</groupId>
                 <artifactId>qdox</artifactId>
                 <version>2.0.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.1.85.Final</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
