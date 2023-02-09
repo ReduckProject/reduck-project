@@ -10,19 +10,28 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
 
 /**
  * @author Reduck
@@ -59,7 +68,8 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
 
     @Override
     public PaginationResult findAllWith(PageRequest query, Class returnType) {
-       return null;
+
+        return null;
     }
 
     @Override
@@ -104,7 +114,7 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         Root root = cq.from(getDomainClass());
         cq.multiselect(Arrays.stream(returnType.getDeclaredFields()).map(field -> root.get(field.getName())).collect(Collectors.toList()));
         Predicate predicate = new SpecificationResolver(o, getDomainClass()).toPredicate(root, cq, em.getCriteriaBuilder());
-        if(predicate != null){
+        if (predicate != null) {
             cq.where(predicate);
         }
         return em.createQuery(cq).getResultList();
@@ -155,7 +165,7 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
 //        em.createQuery(sql).getResultList();
         Query query = em.createNativeQuery(sql);
 
-        if(!(query instanceof NativeQueryImpl)){
+        if (!(query instanceof NativeQueryImpl)) {
             throw new UnsupportedOperationException();
         }
 
@@ -195,5 +205,42 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         public void setId(Object id) {
             this.id = id;
         }
+    }
+
+    protected <V, S extends T> TypedQuery<S> getQuery(@Nullable Specification<S> spec,Class<S> domainClass, Class<V> resultType, Sort sort) {
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<S> query = builder.createQuery(domainClass);
+
+        Root<S> root = applySpecificationToCriteria(spec, domainClass, query);
+        query.multiselect(root);
+
+        if (sort.isSorted()) {
+            query.orderBy(toOrders(sort, root, builder));
+        }
+
+        return em.createQuery(query);
+    }
+
+    private <S, U extends T> Root<U> applySpecificationToCriteria(@Nullable Specification<U> spec, Class<U> domainClass,
+                                                                  CriteriaQuery<S> query) {
+
+        Assert.notNull(domainClass, "Domain class must not be null!");
+        Assert.notNull(query, "CriteriaQuery must not be null!");
+
+        Root<U> root = query.from(domainClass);
+
+        if (spec == null) {
+            return root;
+        }
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        Predicate predicate = spec.toPredicate(root, query, builder);
+
+        if (predicate != null) {
+            query.where(predicate);
+        }
+
+        return root;
     }
 }

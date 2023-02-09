@@ -1,5 +1,7 @@
 package net.reduck.jpa.specification.annotation;
 
+import net.reduck.jpa.specification.CompareOperator;
+
 import javax.persistence.criteria.JoinType;
 import java.lang.annotation.*;
 
@@ -36,7 +38,7 @@ public @interface SpecificationQuery {
     String[] join() default {};
 
     /**
-     * 连接方式，仅适用多表查询
+     * 关联查询类型，仅当需要进行关联查询时才生效
      *
      * @return
      */
@@ -53,33 +55,31 @@ public @interface SpecificationQuery {
     /**
      * 动态获取忽略大小写方法
      * 必须是一个无参方法
+     * 例如：
+     * class Query {
+     *     void ignoreCase() {
+     *         return false;
+     *     }
+     * }
      *
      * @return
      */
     String ignoreCaseMethod() default "";
 
     /**
-     * not implement
-     *
-     * @return
-     */
-    // TODO: 2022/8/11
-    boolean skipEmpty() default true;
-
-    /**
-     * 忽略大小写 默认不忽略
-     * 优先按照{@link #ignoreCaseMethod()} 匹配
+     * Is ignore case
+     * Can be override by {@link #ignoreCaseMethod()}
      *
      * @return
      */
     boolean ignoreCase() default false;
 
     /**
-     * 比较关系 默认等于
+     * Compare operator default {@link CompareOperator#EQUALS}
      *
      * @return
      */
-    net.reduck.jpa.specification.OperatorType compare() default net.reduck.jpa.specification.OperatorType.EQUAL;
+    CompareOperator compare() default CompareOperator.EQUALS;
 
     /**
      * 外部字段查询关系
@@ -88,25 +88,42 @@ public @interface SpecificationQuery {
      *
      * @return
      */
-    OperatorType operator() default SpecificationQuery.OperatorType.AND;
+    BooleanOperator operator() default BooleanOperator.AND;
 
     /**
      * 内部字段查询关系
      *
      * @return
      */
-    OperatorType multiOperator() default SpecificationQuery.OperatorType.OR;
+    BooleanOperator multiOperator() default BooleanOperator.OR;
 
-    enum OperatorType {
+    /**
+     * Detect is valid parameter
+     *
+     * @return
+     */
+    Matches match() default Matches.NOT_EMPTY;
+
+    enum BooleanOperator {
         /**
-         * 对应数据库且查询
+         * like sql `select * from t where a = ? AND b = ?`
          */
         AND,
 
         /**
-         * 或查询
+         * like sql `select * from t where a = ? OR b = ?`
          */
         OR
+    }
+
+    enum Matches {
+        NOT_EMPTY,
+
+        NOT_NULL,
+
+        NOT_ZERO,
+
+        ALWAYS;
     }
 }
 

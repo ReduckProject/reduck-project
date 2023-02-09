@@ -12,9 +12,15 @@ import java.util.Set;
  * @author Reduck
  * @since 2019/6/10 17:23
  */
-public class QueryDescriptor {
-    QueryDescriptor(String columnName, String name, Object value, OperatorType operatorType) {
+public class PredicateDescriptor {
+    PredicateDescriptor(String columnName, String name, Object value, CompareOperator operatorType) {
         this.columnName = columnName;
+        this.name = name;
+        this.value = value;
+        this.operatorType = operatorType;
+    }
+
+    public PredicateDescriptor(String name, Object value, CompareOperator operatorType) {
         this.name = name;
         this.value = value;
         this.operatorType = operatorType;
@@ -43,7 +49,7 @@ public class QueryDescriptor {
     /**
      * 操作符，大于、小于 .et
      */
-    OperatorType operatorType;
+    CompareOperator operatorType;
 
     boolean ignoreCase;
 
@@ -54,15 +60,15 @@ public class QueryDescriptor {
     /**
      * 外部查询关联
      */
-    SpecificationQuery.OperatorType linkedType = SpecificationQuery.OperatorType.AND;
+    SpecificationQuery.BooleanOperator combined = SpecificationQuery.BooleanOperator.AND;
 
     /**
      * 内部查询关联
      */
-    SpecificationQuery.OperatorType inLinkedType = SpecificationQuery.OperatorType.AND;
+    SpecificationQuery.BooleanOperator multiCombined = SpecificationQuery.BooleanOperator.AND;
 
-    void setLinkedType(SpecificationQuery.OperatorType linkedType) {
-        this.linkedType = linkedType;
+    void setCombined(SpecificationQuery.BooleanOperator combined) {
+        this.combined = combined;
     }
 
     void setIgnoreCase(boolean ignoreCase) {

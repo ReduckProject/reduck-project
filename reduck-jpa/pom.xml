@@ -50,10 +50,10 @@
             <artifactId>reduck-asm</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>sun.tools</groupId>
-            <artifactId>tools</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>sun.tools</groupId>-->
+<!--            <artifactId>tools</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -71,7 +71,7 @@
                     <!-- -proc:none-->
                     <!--</compilerArgument>-->
 
-                    <proc>none</proc>
+<!--                    <proc>none</proc>-->
 
                     <compilerArguments>
                         <!--<bootclasspath>${java.home}/lib/tools.jar</bootclasspath>-->

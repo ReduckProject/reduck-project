@@ -32,8 +32,8 @@ class SpecificationAnnotationIntrospector {
      *
      * @return
      */
-    static List<QueryDescriptor> getQueryDescriptors(Object o) {
-        List<QueryDescriptor> customConditions = new ArrayList<>();
+    static List<PredicateDescriptor> getQueryDescriptors(Object o) {
+        List<PredicateDescriptor> customConditions = new ArrayList<>();
         Map<String, Method> properties = getPropertiesAndGetter(o.getClass());
 
         // 仅获取当前类的属性，不获取父类属性
@@ -89,7 +89,7 @@ class SpecificationAnnotationIntrospector {
         return customConditions;
     }
 
-    static void addDescriptor(Annotations annotations, String name, Method method, Object target, List<QueryDescriptor> descriptors) {
+    static void addDescriptor(Annotations annotations, String name, Method method, Object target, List<PredicateDescriptor> descriptors) {
         Object value = invoke(method, target);
 
         if (annotations.query != null) {
@@ -128,23 +128,23 @@ class SpecificationAnnotationIntrospector {
             }
 
             int i = 1;
-            QueryDescriptor customCondition = null;
+            PredicateDescriptor customCondition = null;
             for (String columnName : columns) {
                 if (i == 1) {
-                    customCondition = new QueryDescriptor(columnName, name, value, query.compare());
+                    customCondition = new PredicateDescriptor(columnName, name, value, query.compare());
                     if ("".equals(query.ignoreCaseMethod())) {
                         customCondition.setIgnoreCase(query.ignoreCase());
                     } else {
                         Boolean ignoreCase = (Boolean) invoke(Objects.requireNonNull(BeanUtils.findMethod(target.getClass(), query.ignoreCaseMethod())), target);
                         customCondition.setIgnoreCase(ignoreCase != null && ignoreCase);
                     }
-                    customCondition.setLinkedType(query.operator());
+                    customCondition.setCombined(query.operator());
                     customCondition.setJoinName(query.join());
                     customCondition.setJoinType(query.joinType());
                     descriptors.add(customCondition);
                 } else {
                     customCondition.inNames.add(columnName);
-                    customCondition.inLinkedType = query.multiOperator();
+                    customCondition.multiCombined = query.multiOperator();
                 }
                 i++;
             }
@@ -163,7 +163,7 @@ class SpecificationAnnotationIntrospector {
                 }
             }
 
-            descriptors.add(new QueryDescriptor(name, name, invoke(method, target), OperatorType.EQUAL));
+            descriptors.add(new PredicateDescriptor(name, name, invoke(method, target), CompareOperator.EQUALS));
         }
     }
 

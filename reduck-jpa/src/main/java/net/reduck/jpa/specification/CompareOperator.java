@@ -4,7 +4,7 @@ package net.reduck.jpa.specification;
  * @author Reduck
  * @since 2019/3/8 15:20
  */
-public enum OperatorType {
+public enum CompareOperator {
     /**
      * 大于
      */
@@ -28,32 +28,32 @@ public enum OperatorType {
     /**
      * 等于
      */
-    EQUAL(" = ", "等于"),
+    EQUALS(" = ", "等于"),
 
     /**
      * 不等于
      */
-    NOT_EQUAL(" != ", "不等于"),
+    NOT_EQUALS(" != ", "不等于"),
 
     /**
      * 包含
      */
-    CONTAIN(" LIKE '%%' ", "包含"),
+    CONTAINS(" LIKE '%%' ", "包含"),
 
     /**
      * 以...开始
      */
-    BEGIN_WITH(" LIKE ", "起始位置包含"),
+    STARTS_WITH(" LIKE ", "起始位置包含"),
 
     /**
      * 不包含
      */
-    NOT_LIKE(" NOT CONTAIN ", "不包含"),
+    NOT_CONTAINS(" NOT CONTAIN ", "不包含"),
 
     /**
      * 以...结束
      */
-    END_WITH(" LIKE ", "结束位置包含"),
+    ENDS_WITH(" LIKE ", "结束位置包含"),
 
     /**
      * 都不是
@@ -73,10 +73,10 @@ public enum OperatorType {
     NOT_NULL(" NOT NULL ", "不为空")
 
     ;
-    String operator;
+    final String operator;
     String desc;
 
-    OperatorType(String operator) {
+    CompareOperator(String operator) {
         this.operator = operator;
     }
 
@@ -88,13 +88,13 @@ public enum OperatorType {
         return desc;
     }
 
-    OperatorType(String operator, String desc) {
+    CompareOperator(String operator, String desc) {
         this.operator = operator;
         this.desc = desc;
     }
 
-    public static OperatorType getByName(String name) {
-        for (OperatorType type : OperatorType.values()) {
+    public static CompareOperator getByName(String name) {
+        for (CompareOperator type : CompareOperator.values()) {
             if (type.name().equals(name)) {
                 return type;
             }

@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/9/29 09:54
  */
 @Retention(RetentionPolicy.SOURCE)

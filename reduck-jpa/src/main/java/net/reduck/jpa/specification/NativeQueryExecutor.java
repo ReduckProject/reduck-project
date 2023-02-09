@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/10/18 15:19
  */
 public class NativeQueryExecutor {

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
@@ -23,28 +24,30 @@ import static net.reduck.jpa.specification.SpecificationAnnotationIntrospector.g
  * @since 2019/4/2 19:06
  */
 @SuppressWarnings({"unchecked", "rawtypes", "cast", "AlibabaMethodTooLong", "Duplicates"})
-class SpecificationResolver<T> implements Specification<T> {
+class SpecificationResolver2<T> implements Specification<T> {
     private static final long serialVersionUID = -1L;
 
-    private static Logger log = LoggerFactory.getLogger(SpecificationResolver.class);
+    private static Logger log = LoggerFactory.getLogger(SpecificationResolver2.class);
 
     private final Class targetClass;
     private final Map<String, Method> entityReadMethods;
     private final List<PredicateDescriptor> conditions;
-    private final Map<String, Join> joinMap = new HashMap<>();
+    private final Map<String, Join> joinCache = new HashMap<>();
     private final String id = "id";
     private final Object target;
 
     private Predicate predicateResult = null;
 
-    public SpecificationResolver(Object queryCondition, Class<T> entityClass) {
+    private EscapeCharacter escape = EscapeCharacter.DEFAULT;
+
+    public SpecificationResolver2(Object queryCondition, Class<T> entityClass) {
         this.targetClass = queryCondition.getClass();
         this.entityReadMethods = getPropertiesAndGetter(entityClass);
         this.conditions = new ArrayList<>(getQueryDescriptors(queryCondition));
         this.target = queryCondition;
     }
 
-    public SpecificationResolver(List<PredicateDescriptor> queryCondition, Class<T> entityClass) {
+    public SpecificationResolver2(List<PredicateDescriptor> queryCondition, Class<T> entityClass) {
         this.targetClass = Void.class;
         this.entityReadMethods = getPropertiesAndGetter(entityClass);
         this.conditions = queryCondition;
@@ -55,43 +58,24 @@ class SpecificationResolver<T> implements Specification<T> {
     @Override
     @Nullable
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-
-        if (predicateResult != null) {
-            joinMap.clear();
-        }
-
-        Distinct distinct = AnnotationUtils.findAnnotation(targetClass, Distinct.class);
-        if (distinct != null) {
-            if (!"".equals(distinct.distinctMethod())) {
-                Method method = BeanUtils.findMethod(targetClass, distinct.distinctMethod());
-                if (method == null) {
-                    throw new RuntimeException("Distinct method is not exist ");
-                }
-
-                if ((Boolean) SpecificationAnnotationIntrospector.invoke(method, target)) {
-                    query.distinct(true);
-                }
-            } else {
-                if (distinct.value()) {
-                    query.distinct(true);
-                }
-            }
-        }
+        processDistinct(query);
 
         if (AnnotationUtils.findAnnotation(targetClass, SpecificationSubquery.class) != null) {
-            javax.persistence.criteria.Subquery subquery = query.subquery(root.getJavaType());
+            Subquery subquery = query.subquery(root.getJavaType());
             Root<T> subRoot = subquery.from(root.getJavaType());
             subquery.select(subRoot.get(id));
-            subquery.where(handle(subRoot, criteriaBuilder)).alias("subquery");
+            subquery.where(process(subRoot, criteriaBuilder)).alias("subquery");
             predicateResult = criteriaBuilder.and(root.get(id).in(subquery));
         } else {
-            predicateResult = criteriaBuilder.and(handle(root, criteriaBuilder));
+            predicateResult = criteriaBuilder.and(process(root, criteriaBuilder));
         }
 
+        // 清除缓存，避免多次调用异常
+        joinCache.clear();
         return predicateResult;
     }
 
-    private Predicate handle(Root root, CriteriaBuilder criteriaBuilder) {
+    private Predicate process(Root root, CriteriaBuilder criteriaBuilder) {
 
         Predicate predicate = criteriaBuilder.conjunction();
         // 自定义条件转换
@@ -106,7 +90,7 @@ class SpecificationResolver<T> implements Specification<T> {
                 Predicate nextPredicate = getMultipleValuePredicate(condition, criteriaBuilder, root);
                 // 处理非like多值
                 if (nextPredicate == null) {
-                    nextPredicate = resolve(condition, criteriaBuilder, root);
+                    nextPredicate = processCondition(condition, criteriaBuilder, root);
                     nextPredicate = getInPredicate(nextPredicate, condition, criteriaBuilder, root);
                 }
 
@@ -139,7 +123,7 @@ class SpecificationResolver<T> implements Specification<T> {
      *
      * @return
      */
-    private Predicate resolve(PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+    private Predicate processCondition(PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
         Predicate predicate;
         switch (condition.operatorType) {
             // 小于等于
@@ -249,14 +233,14 @@ class SpecificationResolver<T> implements Specification<T> {
 
         for (String joinName : joinNames) {
             sb.append(joinName).append(".");
-            if (!joinMap.containsKey(sb.toString())) {
+            if (!joinCache.containsKey(sb.toString())) {
                 if (join == null) {
-                    joinMap.put(sb.toString(), root.join(joinName, joinType));
+                    joinCache.put(sb.toString(), root.join(joinName, joinType));
                 } else {
-                    joinMap.put(sb.toString(), join.join(joinName, joinType));
+                    joinCache.put(sb.toString(), join.join(joinName, joinType));
                 }
             }
-            join = joinMap.get(sb.toString());
+            join = joinCache.get(sb.toString());
         }
         return join;
     }
@@ -278,7 +262,7 @@ class SpecificationResolver<T> implements Specification<T> {
             PredicateDescriptor newCondition = new PredicateDescriptor(condition.name, condition.name, values, condition.operatorType);
             newCondition.setJoinName(condition.joinName);
             newCondition.setJoinType(condition.joinType);
-            predicates.add(resolve(newCondition, criteriaBuilder, root));
+            predicates.add(processCondition(newCondition, criteriaBuilder, root));
         }
 
         return condition.multiCombined == SpecificationQuery.BooleanOperator.OR
@@ -296,7 +280,7 @@ class SpecificationResolver<T> implements Specification<T> {
             PredicateDescriptor newCondition = new PredicateDescriptor(name, name, condition.value, condition.operatorType);
             newCondition.setJoinName(condition.joinName);
             newCondition.setJoinType(condition.joinType);
-            predicates.add(resolve(newCondition, criteriaBuilder, root));
+            predicates.add(processCondition(newCondition, criteriaBuilder, root));
         }
 
         predicates.add(predicate);
@@ -314,33 +298,37 @@ class SpecificationResolver<T> implements Specification<T> {
     }
 
     /**
-     * mysql 特殊字符转译处理
+     * 模糊查询时进行字符转义
      *
      * @param value 待转译字符
      *
      * @return
      */
     private String escape(String value) {
-        if (!StringUtils.hasText(value)) {
-            return "";
-        }
-
-        if (value.contains("\\")) {
-            value = value.replaceAll("\\\\", "\\\\\\\\");
-        }
-
-        if (value.contains("/")) {
-            value = value.replaceAll("/", "\\\\/");
-        }
-
-        if (value.contains("_")) {
-            value = value.replaceAll("_", "\\\\_");
-        }
-
-        if (value.contains("%")) {
-            value = value.replaceAll("%", "\\\\%");
-        }
-
-        return value;
+        return StringUtils.hasText(value) ? escape.escape(value) : value;
     }
+
+    private void processDistinct(CriteriaQuery<?> query) {
+        Distinct distinct = AnnotationUtils.findAnnotation(targetClass, Distinct.class);
+
+        if (distinct == null) {
+            return;
+        }
+
+        if (!"".equals(distinct.distinctMethod())) {
+            Method method = BeanUtils.findMethod(targetClass, distinct.distinctMethod());
+            if (method == null) {
+                throw new DynamicBuildJpaQueryException("Distinct method does not exist : " + targetClass.getName() + "#" + distinct.distinctMethod() + "()");
+            }
+
+            if ((Boolean) SpecificationAnnotationIntrospector.invoke(method, target)) {
+                query.distinct(true);
+            }
+        } else {
+            if (distinct.value()) {
+                query.distinct(true);
+            }
+        }
+    }
+
 }

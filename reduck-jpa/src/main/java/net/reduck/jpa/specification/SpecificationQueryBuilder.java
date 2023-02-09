@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class SpecificationQueryBuilder {
 
-    private List<QueryDescriptor> descriptors = new ArrayList<>();
+    private List<PredicateDescriptor> descriptors = new ArrayList<>();
 
 //    public SpecificationQueryBuilder and(String property, Object value) {
 //        add(property, value, OperatorType.EQUAL, SpecificationQuery.OperatorType.AND, null);
@@ -61,9 +61,9 @@ public class SpecificationQueryBuilder {
         return new SpecificationResolver<>(this.descriptors, domainClass);
     }
 
-    private void add(String property, Object value, OperatorType type, SpecificationQuery.OperatorType operatorType, String... join) {
-        QueryDescriptor descriptor = new QueryDescriptor(property, property, value, type);
-        descriptor.setLinkedType(operatorType);
+    private void add(String property, Object value, CompareOperator type, SpecificationQuery.BooleanOperator operatorType, String... join) {
+        PredicateDescriptor descriptor = new PredicateDescriptor(property, property, value, type);
+        descriptor.setCombined(operatorType);
         if (join != null) {
             descriptor.setJoinName(join);
             descriptor.setJoinType(JoinType.LEFT);
@@ -71,9 +71,9 @@ public class SpecificationQueryBuilder {
         descriptors.add(descriptor);
     }
 
-    void add2(String property, Object value, OperatorType type, SpecificationQuery.OperatorType operatorType, List<String> joins) {
-        QueryDescriptor descriptor = new QueryDescriptor(property, property, value, type);
-        descriptor.setLinkedType(operatorType);
+    void add2(String property, Object value, CompareOperator type, SpecificationQuery.BooleanOperator operatorType, List<String> joins) {
+        PredicateDescriptor descriptor = new PredicateDescriptor(property, property, value, type);
+        descriptor.setCombined(operatorType);
         if (joins != null && joins.size() > 0) {
             descriptor.setJoinName(joins.toArray(new String[0]));
             descriptor.setJoinType(JoinType.LEFT);
@@ -82,19 +82,19 @@ public class SpecificationQueryBuilder {
     }
 
     public Matcher and(String property) {
-        return new Matcher(this, property, SpecificationQuery.OperatorType.AND);
+        return new Matcher(this, property, SpecificationQuery.BooleanOperator.AND);
     }
 
     public Matcher or(String property) {
-        return new Matcher(this, property, SpecificationQuery.OperatorType.OR);
+        return new Matcher(this, property, SpecificationQuery.BooleanOperator.OR);
     }
 
     public static class Matcher {
         private final SpecificationQueryBuilder builder;
         private String property;
         private Object value;
-        private OperatorType type = OperatorType.EQUAL;
-        private SpecificationQuery.OperatorType operatorType = SpecificationQuery.OperatorType.AND;
+        private CompareOperator type = CompareOperator.EQUALS;
+        private SpecificationQuery.BooleanOperator operatorType = SpecificationQuery.BooleanOperator.AND;
         private List<String> joins = new LinkedList<>();
         private JoinType joinType = JoinType.LEFT;
 
@@ -102,23 +102,23 @@ public class SpecificationQueryBuilder {
             this.builder = builder;
         }
 
-        public Matcher(SpecificationQueryBuilder builder, String property, SpecificationQuery.OperatorType operatorType) {
+        public Matcher(SpecificationQueryBuilder builder, String property, SpecificationQuery.BooleanOperator operatorType) {
             this.builder = builder;
             this.operatorType = operatorType;
             this.property = property;
         }
 
         private Matcher and() {
-            operatorType = SpecificationQuery.OperatorType.AND;
+            operatorType = SpecificationQuery.BooleanOperator.AND;
             return this;
         }
 
         private Matcher or() {
-            operatorType = SpecificationQuery.OperatorType.OR;
+            operatorType = SpecificationQuery.BooleanOperator.OR;
             return this;
         }
 
-        public Matcher operate(OperatorType type) {
+        public Matcher operate(CompareOperator type) {
             this.type = type;
             return this;
         }
