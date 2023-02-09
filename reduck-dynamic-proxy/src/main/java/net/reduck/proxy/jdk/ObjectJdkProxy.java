@@ -1,11 +1,12 @@
 package net.reduck.proxy.jdk;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2023/2/1 10:52
  */
 public class ObjectJdkProxy implements InvocationHandler {
@@ -24,13 +25,14 @@ public class ObjectJdkProxy implements InvocationHandler {
         return invoke;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+//        System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
+        System.getProperties().forEach((k, v) -> System.out.println(k + ":" + v));
         LocalUserService localUserService = new LocalUserService();
         ObjectJdkProxy proxy = new ObjectJdkProxy(localUserService);
 
         UseService useService = (UseService) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), LocalUserService.class.getInterfaces(), proxy);
 
         useService.getName();
-
     }
 }

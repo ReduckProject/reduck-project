@@ -1,7 +1,7 @@
 package net.reduck.proxy.jdk;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2023/2/1 10:51
  */
 public class LocalUserService implements UseService {
