@@ -1,6 +1,7 @@
 package net.reduck.jpa.test.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import net.reduck.jpa.specification.NativeQueryExecutor;
 import net.reduck.jpa.test.entity.PersonalInfo;
 import net.reduck.jpa.test.entity.User;
@@ -14,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/test")
 @RequiredArgsConstructor
+@Log4j2
 public class TestController {
     private final UserRepository userRepository;
     private final EntityManager entityManager;
@@ -35,12 +38,30 @@ public class TestController {
     @Value("${enc.test}")
     private String value;
 
+    @Value("${oem.test}")
+    private String test;
+
+    /**
+     * 列表
+     *
+     * @param request
+     * @return
+     */
     @GetMapping(value = "/list")
     public Object list(@Validated UserListTO request) {
+        log.info("INFO____");
+        log.warn("WARN___");
+        log.error("ERROR___d");
         userRepository.executeNativeSql("select * from user", UserVO.class);
         return userRepository.findAll();
     }
 
+    /**
+     * 列表2
+     *
+     * @param request
+     * @return
+     */
     @GetMapping(value = "/list2")
     public List<?> list2(UserListTO request) {
 //        userRepository.findAllByBuilder(SpecificationQueryBuilder.newInstance()
@@ -49,6 +70,12 @@ public class TestController {
         return userRepository.findAllNoPageWith(request, UserVO.class);
     }
 
+    /**
+     * 跳转
+     *
+     * @param response
+     * @throws IOException
+     */
     @GetMapping(value = "/jump")
     public void list2(HttpServletResponse response) throws IOException {
         response.sendRedirect("/test/list");
@@ -89,5 +116,9 @@ public class TestController {
     @GetMapping(value = "/nativeQuery")
     public List<UserVO> nativeQuery(){
         return executor.query("select * from user where id > ?1", UserVO.class, 1);
+    }
+
+    public static void main(String[] args) {
+        new RestTemplate().getForEntity("https://www.baidu.com", String.class);
     }
 }

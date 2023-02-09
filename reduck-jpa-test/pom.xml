@@ -17,15 +17,34 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+            <version>2.7.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+
         </dependency>
 
         <dependency>
@@ -72,27 +91,57 @@
             <artifactId>junit</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>net.reduck</groupId>
+            <artifactId>reduck-concurrent</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.thoughtworks.qdox</groupId>
+            <artifactId>qdox</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-security</artifactId>-->
+<!--        </dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>io.springfox</groupId>-->
+        <!--<artifactId>springfox-swagger-ui</artifactId>-->
+        <!--<version>2.8.0</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
 
         <resources>
             <!--<resource>-->
-                <!--<directory>src/main/java</directory>-->
-                <!--<includes>-->
-                    <!--<include>**/*.properties</include>-->
-                    <!--<include>**/*.xml</include>-->
-                    <!--&lt;!&ndash;<include>**/*.*</include>&ndash;&gt;-->
-                <!--</includes>-->
-                <!--<filtering>false</filtering>-->
+            <!--<directory>src/main/java</directory>-->
+            <!--<includes>-->
+            <!--<include>**/*.properties</include>-->
+            <!--<include>**/*.xml</include>-->
+            <!--&lt;!&ndash;<include>**/*.*</include>&ndash;&gt;-->
+            <!--</includes>-->
+            <!--<filtering>false</filtering>-->
             <!--</resource>-->
             <!--<resource>-->
-                <!--<directory>src/main/resources</directory>-->
-                <!--<includes>-->
-                    <!--<include>**/*.properties</include>-->
-                    <!--<include>**/*.xml</include>-->
-                <!--</includes>-->
-                <!--<filtering>false</filtering>-->
+            <!--<directory>src/main/resources</directory>-->
+            <!--<includes>-->
+            <!--<include>**/*.properties</include>-->
+            <!--<include>**/*.xml</include>-->
+            <!--</includes>-->
+            <!--<filtering>false</filtering>-->
             <!--</resource>-->
         </resources>
         <plugins>
@@ -105,6 +154,37 @@
                 <groupId>com.github.ulisesbocchio</groupId>
                 <artifactId>jasypt-maven-plugin</artifactId>
                 <version>3.0.3</version>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.shalousun</groupId>
+                <artifactId>smart-doc-maven-plugin</artifactId>
+                <version>2.2.6</version>
+                <configuration>
+                    <!--Specify the configuration file used to generate the document-->
+                    <configFile>./src/main/resources/smart-doc.json</configFile>
+                    <!--smart-doc implements automatic analysis of the dependency tree to load the source code of third-party dependencies. If some framework dependency libraries are not loaded, an error is reported, then use excludes to exclude-->
+                    <excludes>
+                        <!--The format is: groupId: artifactId; refer to the following-->
+                        <exclude>com.google.guava:guava</exclude>
+                    </excludes>
+                    <!--Since version 1.0.8, the plugin provides includes support-->
+                    <!--smart-doc can automatically analyze the dependency tree to load all dependent source code. In principle, it will affect the efficiency of document construction, so you can use includes to let the plugin load the components you configure.-->
+                    <includes>
+                        <!--The format is: groupId: artifactId; refer to the following-->
+                        <include>com.alibaba:fastjson</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!--Comment out phase if you don't need to start smart-doc when compiling-->
+                        <phase>compile</phase>
+                        <goals>
+                            <!--smart-doc provides html, openapi, markdown, adoc and other goals-->
+                            <goal>html</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -20,4 +20,9 @@ public class Test2Controller {
     public String notNull(@Validated(value = Test2Controller.class) UserListTO to) {
         return ":" + to.getUsername();
     }
+
+    @RequestMapping(value = "/check")
+    public String check(){
+        return "{\"status\" : 0}";
+    }
 }

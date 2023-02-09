@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF">
+    <Properties>
+      <Property name="LOG_HOME">/tmp/dbf</Property>
+      <Property name="LOG_FILE_PREFIX">dbfw_web</Property>
+      <Property name="LOG_FILE_SUFFIX">.log</Property>
+      <Property name="LOG_FILE_NAME">${LOG_FILE_PREFIX}${LOG_FILE_SUFFIX}</Property>
+      <Property name="MAX_DATE">15d</Property>
+      <Property name="MSG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</Property>
+    </Properties>
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <!--控制檯只輸出level及以上級別的資訊（onMatch），其他的直接拒絕（onMismatch）-->
+      <!--<ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>-->
+      <PatternLayout pattern="${MSG_PATTERN}"/>
+    </Console>
+    <!--這個會打印出所有的資訊，每次大小超過size，則這size大小的日誌會自動存入按年份-月份建立的資料夾下面並進行壓縮，作為存檔-->
+    <RollingFile name="RollingFile" fileName="${LOG_HOME}/${LOG_FILE_NAME}"
+      filePattern="${LOG_HOME}/${LOG_FILE_PREFIX}.%d{yyyy-MM-dd}${LOG_FILE_SUFFIX}">
+      <PatternLayout pattern="${MSG_PATTERN}"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${LOG_HOME}" maxDepth="1">
+          <IfFileName glob="*${LOG_FILE_SUFFIX}" />
+          <IfLastModified age="${MAX_DATE}" />
+        </Delete>
+      </DefaultRolloverStrategy>>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Logger name="org.springframework" level="INFO" additivity="false">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingFile" />
+    </Logger>
+    <Logger name="net.secsmart" level="INFO" additivity="false">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingFile" />
+    </Logger>
+    <Logger name="cn.secsmart" level="INFO" additivity="false">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingFile" />
+    </Logger>
+    <Logger name="com.secsmart" level="INFO" additivity="false">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingFile" />
+    </Logger>
+    <Logger name="net.reduck" level="INFO" additivity="false">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingFile" />
+    </Logger>
+    <Root level="INFO">
+      <appender-ref ref="RollingFile"/>
+      <appender-ref ref="Console"/>
+    </Root>
+  </Loggers>
+</Configuration>

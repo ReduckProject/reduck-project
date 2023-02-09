@@ -19,4 +19,7 @@ public interface UserRepository extends JpaRepositoryExtend<User, Long> {
     @Jcp269
     List<UserVO> findAllBy();
 
+
+    List<User> findAllByDeletedFalse();
+
 }
