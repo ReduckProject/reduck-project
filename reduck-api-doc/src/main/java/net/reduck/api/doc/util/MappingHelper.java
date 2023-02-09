@@ -17,7 +17,7 @@ import java.util.Set;
  * @author Reduck
  * @since 2022/12/12 09:24
  */
-public class ClassHelper {
+public class MappingHelper {
     private static Set<String> controllerClassNameSet = new HashSet<>();
     private static Set<String> requestMappingClassNameSet = new HashSet<>();
 
@@ -111,6 +111,7 @@ public class ClassHelper {
                 return mappingNormalize(((Constant) value).getValue().toString());
             }
         }
+
         return mappingNormalize(value.toString());
     }
 
@@ -120,6 +121,7 @@ public class ClassHelper {
                 return true;
             }
         }
+
         return false;
     }
 }

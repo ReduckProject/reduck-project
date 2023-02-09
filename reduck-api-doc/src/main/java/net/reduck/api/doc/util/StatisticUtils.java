@@ -27,20 +27,27 @@ public class StatisticUtils {
 
         List<String> urls = new ArrayList<>();
         for (JavaClass javaClass : builder.getClasses()) {
-            if (!ClassHelper.containController(javaClass)) {
+            if (!MappingHelper.containController(javaClass)) {
                 continue;
             }
 
-            String prefix = ClassHelper.getUrl(javaClass.getAnnotations());
+            String prefix = MappingHelper.getUrl(javaClass.getAnnotations());
             for (JavaMethod javaMethod : javaClass.getMethods()) {
-                if (!ClassHelper.containRequestMapping(javaMethod)) {
+                if (!MappingHelper.containRequestMapping(javaMethod)) {
                     continue;
                 }
-                String suffix = ClassHelper.getUrl(javaMethod.getAnnotations());
+                String suffix = MappingHelper.getUrl(javaMethod.getAnnotations());
                 urls.add(prefix + suffix);
             }
         }
 
         return urls;
+    }
+
+    public static void main(String[] args) throws IOException {
+        List<String> urls = getAllUrl(System.getProperty("user.home") + "/Documents/workspace/dsm/backend/src/main/java/com/secsmart/backend");
+
+        urls.forEach(System.out::println);
+        System.out.println(urls.size());
     }
 }
