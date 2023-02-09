@@ -70,7 +70,7 @@ public class DynamicClassLoader extends ClassLoader {
 
     public static void main(String[] args) throws ClassNotFoundException, MalformedURLException {
         DynamicClassLoader loader = new DynamicClassLoader();
-        Class<?> target5 = loader.loadClass("net.reduck.validator.PatternConstant", "/Users/zhanjinkai/Documents/GitHub/reduck-project/reduck-validator/target/classes/net/reduck/validator/PatternConstant.class");
+        Class<?> target5 = loader.loadClass("net.reduck.validator.PatternConstant", System.getProperty("user.dir") + "/reduck-validator/target/classes/net/reduck/validator/PatternConstant.class");
 
         System.out.println(target5.getClassLoader());
 

@@ -48,28 +48,28 @@ public class Test {
     public static class C2 {
         String name;
 
-//        Long id;
-//
-//        int age;
-//        boolean deleted;
-//
-//        byte b;
-//
-//        Byte b1;
-//
-//        float f;
-//
-//        Float f1;
-//
-//        double d;
-//
-//        double d2;
+        Long id;
+
+        int age;
+        boolean deleted;
+
+        byte b;
+
+        Byte b1;
+
+        float f;
+
+        Float f1;
+
+        double d;
+
+        double d2;
     }
     public static void main(String[] args) throws InstantiationException, IllegalAccessException {
         String name = "net.reduck.Test333";
         TransformerClassBuilder builder = new TransformerClassBuilder(name, C1.class, C2.class);
         byte[] data = builder.construct().transfer().build();
-        IoUtils.save("/Users/zhanjinkai/Documents/GitHub/reduck-project/Gin.class", data );
+        IoUtils.save(System.getProperty("user.dir") + "/Gin.class", data );
 
 
 
@@ -80,8 +80,8 @@ public class Test {
         c1.setAge(12);
         c1.setB1((byte) 0x12);
         c1.setName("Gin");
-        ObjectTransformer<C1, C2> transfer = transformerClass.newInstance();
-        C2 c2 = transfer.transfer(c1);
+//        ObjectTransformer<C1, C2> transfer = transformerClass.newInstance();
+        C2 c2 = MapperUtils.map(c1,  C2.class);
 //        C2 c2 = new Test333().transfer(c1);
         System.out.println(c2.toString());
 

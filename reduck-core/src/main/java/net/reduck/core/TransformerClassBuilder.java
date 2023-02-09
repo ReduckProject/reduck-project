@@ -1,6 +1,7 @@
 package net.reduck.core;
 
 import net.reduck.core.desc.InstanceDesc;
+import net.reduck.core.desc.PrimitiveHelper;
 import net.reduck.core.desc.TypeDesc;
 import net.reduck.core.desc.TypeHelper;
 import net.reduck.core.internal.asm.ClassWriter;
@@ -73,7 +74,8 @@ public class TransformerClassBuilder implements Opcodes {
                 methodVisitor.visitVarInsn(ALOAD, 2);
                 methodVisitor.visitVarInsn(ALOAD, 1);
                 methodVisitor.visitMethodInsn(INVOKEVIRTUAL, TypeHelper.getType(sourceClass), entry.getValue().getReadMethod().getName(), TypeHelper.getGetterDesc(entry.getValue().getPropertyType()), false);
-                methodVisitor.visitMethodInsn(INVOKEVIRTUAL, TypeHelper.getType(targetClass), entry.getValue().getWriteMethod().getName(), TypeHelper.getSetterDesc(entry.getValue().getPropertyType()));
+                PrimitiveHelper.boxing(entry.getValue().getPropertyType(), targetMap.get(entry.getKey()).getPropertyType(), methodVisitor);
+                methodVisitor.visitMethodInsn(INVOKEVIRTUAL, TypeHelper.getType(targetClass), targetMap.get(entry.getKey()).getWriteMethod().getName(), TypeHelper.getSetterDesc(targetMap.get(entry.getKey()).getPropertyType()), false);
             }
         }
 
