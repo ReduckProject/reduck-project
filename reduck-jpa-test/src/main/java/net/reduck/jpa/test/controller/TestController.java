@@ -10,6 +10,7 @@ import net.reduck.jpa.test.service.TransactionalService;
 import net.reduck.jpa.test.vo.UserListTO;
 import net.reduck.jpa.test.vo.UserVO;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -48,10 +50,11 @@ public class TestController {
      * @return
      */
     @GetMapping(value = "/list")
-    public Object list(@Validated UserListTO request) {
+    public Object list(HttpServletRequest servletRequest, @Validated UserListTO request) {
         log.info("INFO____");
         log.warn("WARN___");
         log.error("ERROR___d");
+//        throw new RuntimeException("");
         userRepository.executeNativeSql("select * from user", UserVO.class);
         return userRepository.findAll();
     }

@@ -4,6 +4,8 @@ import net.reduck.jpa.test.vo.UserListTO;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,18 +16,35 @@ import org.springframework.stereotype.Component;
 @Component
 public class CasAspect {
 
-    @Around(value="execution(* net.reduck.jpa.test.controller.TestController.list(net.reduck.jpa.test.vo.UserListTO))")
+    @Around(value="execution(* net.reduck.jpa.test.controller.TestController.list(..))")
+    @Order(value = Ordered.HIGHEST_PRECEDENCE)
     public Object aroundAdvisor(ProceedingJoinPoint point) throws Throwable{
 
         System.out.println("before method");
 
-        UserListTO to = (UserListTO)point.getArgs()[0];
+        UserListTO to = (UserListTO)point.getArgs()[1];
         to.setEmail("33");
         to.setUsername("22333");
 
         Object target = point.proceed();
 
         System.out.println("after method");
-        return target;
+        return "test1";
+    }
+
+    @Around(value="execution(* net.reduck.jpa.test.controller.TestController.list(..))")
+    @Order(value = Ordered.LOWEST_PRECEDENCE)
+    public Object aroundAdvisor2(ProceedingJoinPoint point) throws Throwable{
+
+        System.out.println("before method 2");
+
+        UserListTO to = (UserListTO)point.getArgs()[1];
+        to.setEmail("33");
+        to.setUsername("22333");
+
+        Object target = point.proceed();
+
+        System.out.println("after method 2");
+        return "test2";
     }
 }
