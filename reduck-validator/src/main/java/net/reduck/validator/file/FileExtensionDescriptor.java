@@ -48,7 +48,7 @@ public class FileExtensionDescriptor {
 
     public static void main(String[] args) throws IOException {
         Map<String, FileExtensionDescriptor> map = JsonUtils.json2Map(FileCopyUtils.copyToString(new FileReader(
-                new File("/Users/zhanjinkai/Documents/GitHub/reduck-project/reduck-validator/src/main/resources/extensions.json")
+                System.getProperty("user.dir") + "/reduck-validator/src/main/resources/extensions.json"
         )), FileExtensionDescriptor.class);
 
         System.out.println(JsonUtils.object2JsonFormat(map));

@@ -133,32 +133,4 @@ public class JsonUtils {
     public static JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
         return mapper.getTypeFactory().constructParametricType(collectionClass, elementClasses);
     }
-
-    public static void main(String[] args) throws IOException {
-        Map<String, Map<String, String>> map = new HashMap<>();
-
-        Map<String, String> node = new HashMap<>();
-
-        for (int i = 0; i < 100; i++) {
-            node.put("key" + i, "value_____value____" + i);
-        }
-
-        for (int i = 0; i < 100000; i++) {
-            map.put("node" + i, node);
-        }
-
-        String filePath = "/Users/zhanjinkai/Downloads/test.json";
-        long t1 = System.currentTimeMillis();
-
-        FileCopyUtils.copy(JsonUtils.object2JsonFormat(map), new FileWriter(filePath));
-
-        long t2 = System.currentTimeMillis();
-        Map map1 = JsonUtils.json2Map(FileCopyUtils.copyToString(new FileReader(filePath)), Map.class);
-
-        System.out.println(map1.size());
-
-        long t3 = System.currentTimeMillis();
-
-        System.out.println("toJson " + (t2 - t1) + ", toMap " + (t3 - t2));
-    }
 }
