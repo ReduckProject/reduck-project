@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
     <description>Demo project for Spring Boot</description>
     <properties>
-        <java.version>17</java.version>
+        <java.version>8</java.version>
     </properties>
 
     <modules>
@@ -36,6 +36,10 @@
         <module>reduck-goup</module>
         <module>reduck-dynamic-proxy</module>
         <module>reduck-core</module>
+<!--        <module>reduck-webservice-test</module>-->
+        <module>reduck-json2Java</module>
+        <module>reduck-netools</module>
+        <module>reduck-fake-data</module>
     </modules>
 
     <dependencyManagement>

@@ -117,11 +117,11 @@ public class JSchSSHUtil {
             session.connect();
             channelExec = (ChannelExec) session.openChannel("exec");
             channelExec.setPty(false);
-            String command = commands[0];
+            StringBuilder command = new StringBuilder(commands[0]);
             for (int i = 1; i < commands.length; i++) {
-                command += " && " + commands[i];
+                command.append(" && ").append(commands[i]);
             }
-            channelExec.setCommand(command);
+            channelExec.setCommand(command.toString());
             InputStream std = channelExec.getInputStream();
             InputStream error = channelExec.getErrStream();
             BufferedReader brStd = new BufferedReader(new InputStreamReader(std, StandardCharsets.UTF_8));
@@ -155,5 +155,6 @@ public class JSchSSHUtil {
 
     public static void main(String[] args) {
         ssh2Shell("172.16.44.181", 22, "root", "1", new String[]{"ls", "ls -a"});
+//        ssh2ShellExec("172.16.44.181", 22, "root", "1", new String[]{"ls", "ls -a"});
     }
 }

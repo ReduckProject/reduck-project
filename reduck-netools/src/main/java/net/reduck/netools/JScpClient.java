@@ -13,27 +13,10 @@ import java.io.IOException;
  * @since 2023/4/4 16:10
  */
 public class JScpClient {
-    private final String host;
-    private final int port;
+    private final HostInfo hostInfo;
 
-    private final String username;
-    private final String password;
-
-
-    public JScpClient(String host, int port, String username, String password) {
-        this.host = host;
-        this.port = port;
-        this.username = username;
-        this.password = password;
-    }
-
-    public JScpClient(String host, String username, String password) {
-        this.host = host;
-
-        // 默认端口22
-        this.port = 22;
-        this.username = username;
-        this.password = password;
+    public JScpClient(HostInfo hostInfo) {
+        this.hostInfo = hostInfo;
     }
 
     public void upload(String localFilePath, String remoteDirPath) {
@@ -46,7 +29,7 @@ public class JScpClient {
         try (SshClient client = SshClient.setUpDefaultClient()) {
             try (SimpleScpClient scpClient = new SimpleScpClientImpl(SshClient.wrapAsSimpleClient(client))) {
                 client.start();
-                ScpClient scp = scpClient.scpLogin(host, port, username, password);
+                ScpClient scp = scpClient.scpLogin(hostInfo.getHost(), hostInfo.getPort(), hostInfo.getUsername(), hostInfo.getPassword());
                 if (file.isDirectory()) {
                     scp.upload(localFilePath, remoteDirPath, ScpClient.Option.Recursive, ScpClient.Option.PreserveAttributes);
                 } else {
@@ -61,10 +44,10 @@ public class JScpClient {
     }
 
     public static void main(String[] args) {
-        new JScpClient("172.16.44.181", "root", "1")
-                .upload("/Users/zhanjinkai/Documents/GitHub/reduck-project/reduck-netools/mvnw.cmd", "/opt");
-
-        new JScpClient("172.16.44.181", "root", "1")
-                .upload("/Users/zhanjinkai/Downloads/dbf", "/opt");
+//        new JScpClient("172.16.44.181", "root", "1")
+//                .upload("/Users/zhanjinkai/Documents/GitHub/reduck-project/reduck-netools/mvnw.cmd", "/opt");
+//
+//        new JScpClient("172.16.44.181", "root", "1")
+//                .upload("/Users/zhanjinkai/Downloads/dbf", "/opt");
     }
 }
