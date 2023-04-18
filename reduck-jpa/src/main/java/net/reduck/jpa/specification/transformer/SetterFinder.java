@@ -1,4 +1,4 @@
-package net.reduck.jpa.specification.transform;
+package net.reduck.jpa.specification.transformer;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;

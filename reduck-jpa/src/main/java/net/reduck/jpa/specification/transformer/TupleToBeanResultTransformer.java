@@ -1,4 +1,4 @@
-package net.reduck.jpa.specification.transform;
+package net.reduck.jpa.specification.transformer;
 
 import org.hibernate.transform.ResultTransformer;
 import org.springframework.cglib.core.ReflectUtils;

@@ -1,4 +1,4 @@
-package net.reduck.jpa.specification.transform;
+package net.reduck.jpa.specification.transformer;
 
 import java.math.BigInteger;
 import java.util.HashSet;
@@ -25,12 +25,12 @@ public class TypeHandler {
         return data;
     }
 
-    public static boolean isBasicType(Class type){
+    public static boolean isBasicType(Class<?> type){
         return ClassTypeHolder.getInstance().isBasicType(type);
     }
 
     public static class ClassTypeHolder {
-        private static Set<Class> BASIC_CLASS_TYPE = new HashSet<>();
+        private static Set<Class<?>> BASIC_CLASS_TYPE = new HashSet<>();
         private static final ClassTypeHolder instance = new ClassTypeHolder();
 
         public ClassTypeHolder() {
@@ -45,7 +45,7 @@ public class TypeHandler {
             BASIC_CLASS_TYPE.add(Boolean.class);
         }
 
-        public boolean isBasicType(Class type) {
+        public boolean isBasicType(Class<?> type) {
             return BASIC_CLASS_TYPE.contains(type);
         }
 

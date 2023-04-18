@@ -2,6 +2,7 @@ package net.reduck.jpa.specification;
 
 import net.reduck.jpa.entity.BaseEntityInterface;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -12,6 +13,7 @@ import java.util.function.Function;
 
 /**
  * 官方文档地址：https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories
+ *
  * @author Reduck
  * @since 2019/8/19 16:59
  */
@@ -22,6 +24,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      * 根据ID查询
      *
      * @param id
+     *
      * @return
      */
     Optional<T> findByIdAndDeletedFalse(ID id);
@@ -30,14 +33,37 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      * 根据集合查询允许集合为空
      *
      * @param ids
+     *
      * @return
      */
     List<T> findAllWithIdsNullable(Iterable<ID> ids);
+
+
+    /**
+     * 分页查询
+     *
+     * @param selectType
+     * @param pageable
+     * @return
+     * @param <T>
+     */
+    <T> List<T> findAllWith(Class<T> selectType, Pageable pageable);
+
+    /**
+     * 非分页查询
+     *
+     * @param selectType
+     * @param predicate
+     * @return
+     * @param <T>
+     */
+    <T> List<T> findAllUnPageWith(Class<T> selectType, Object predicate);
 
     /**
      * 根据ID查询
      *
      * @param id
+     *
      * @return
      */
     T getOneByDeletedFalse(ID id);
@@ -46,6 +72,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      * 字段映射查询，不分页
      *
      * @param o
+     *
      * @return
      */
     List<T> findAllNoPageWith(Object o);
@@ -54,9 +81,10 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      * 字段映射查询，不分页
      * 并转换为自定义类型
      *
-     * @param o 查询参数
+     * @param o        查询参数
      * @param transfer 转换器
-     * @param <R> 返回元素类型
+     * @param <R>      返回元素类型
+     *
      * @return
      */
     <R> List<R> findAllNoPageWith(Object o, Function<T, R> transfer);
@@ -68,6 +96,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      *
      * @param pageRequest
      * @param <X>
+     *
      * @return
      */
     <X extends PageRequest> Page<T> findAllWith(X pageRequest);
@@ -79,6 +108,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      * @param transfer
      * @param <X>
      * @param <R>
+     *
      * @return
      */
     <X extends PageRequest, R> PaginationResult<R> findAllWith(X query, Function<T, R> transfer);
@@ -91,6 +121,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      *
      * @param var1
      * @param <S>
+     *
      * @return
      */
     <S extends T> Iterable<S> batchInsert(Iterable<S> var1);
@@ -100,6 +131,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      *
      * @param entity
      * @param <S>
+     *
      * @return
      */
     <S extends T> S persist(S entity);
@@ -109,6 +141,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      *
      * @param entities
      * @param <S>
+     *
      * @return
      */
     <S extends T> Iterable<S> persistAll(Iterable<S> entities);

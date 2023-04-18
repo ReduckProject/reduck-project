@@ -3,8 +3,8 @@ package net.reduck.jpa.transform;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.reduck.jpa.specification.transform.NameHandler;
-import net.reduck.jpa.specification.transform.TupleToBeanResultTransformer;
+import net.reduck.jpa.specification.transformer.NameHandler;
+import net.reduck.jpa.specification.transformer.TupleToBeanResultTransformer;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Test;
 

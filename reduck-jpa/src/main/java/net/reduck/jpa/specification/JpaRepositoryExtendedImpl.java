@@ -2,7 +2,7 @@ package net.reduck.jpa.specification;
 
 import lombok.SneakyThrows;
 import net.reduck.jpa.entity.BaseEntityInterface;
-import net.reduck.jpa.specification.transform.TupleToBeanResultTransformer;
+import net.reduck.jpa.specification.transformer.TupleToBeanResultTransformer;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -80,6 +81,17 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
     @Override
     public List findAllNoPageWith(Object o) {
         return findAll(new SpecificationResolver(o, getDomainClass()), Pageable.unpaged()).getContent();
+    }
+
+    @Override
+    public List findAllWith(Class selectType, Pageable pageable) {
+        Field[] fields = selectType.getDeclaredFields();
+        return null;
+    }
+
+    @Override
+    public List findAllUnPageWith(Class selectType, Object predicate) {
+        return null;
     }
 
     @Override
@@ -242,5 +254,28 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         }
 
         return root;
+    }
+
+    static class QueryFactory {
+
+        private final Class<?> selectType;
+
+        private final Object whereObject;
+
+        private final Class<?> domainType;
+
+        private final EntityManager em;
+
+        public QueryFactory(Class<?> selectType, Object whereObject, Class<?> domainType, EntityManager em) {
+            this.selectType = selectType;
+            this.whereObject = whereObject;
+            this.domainType = domainType;
+            this.em = em;
+        }
+
+        void build() {
+
+        }
+
     }
 }
