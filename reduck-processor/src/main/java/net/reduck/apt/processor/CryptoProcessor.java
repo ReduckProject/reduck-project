@@ -113,7 +113,7 @@ public class CryptoProcessor extends AbstractProcessor {
                 @Override
                 public void visitVarDef(JCTree.JCVariableDecl jcVariableDecl) {
                     log("field : " + jcVariableDecl.toString());
-                    List<JCTree.JCAnnotation> jcAnnotations = jcVariableDecl.getModifiers().getAnnotations();
+                    List<JCTree.JCAnnotation> jcAnnotations = jcVariableDecl.mods.annotations;
 
                     try {
                         if (jcAnnotations != null && jcAnnotations.size() > 0) {
@@ -121,40 +121,43 @@ public class CryptoProcessor extends AbstractProcessor {
 
                             for (JCTree.JCAnnotation jcAnnotation : jcAnnotations) {
                                 if (Crypto.class.getName().equals(jcAnnotation.getAnnotationType().type.tsym.toString())) {
-//                                JCTree.JCAnnotation converterAnnotation = treeMaker.Annotation(treeMaker.Ident(names.fromString(convertName)), // 注解名称
-//                                        List.of(
-//                                                treeMaker.Exec(
-//                                                        treeMaker.Assign(treeMaker.Ident(names.fromString("converter")), // 注解属性
-//                                                                treeMaker.Literal(TypeTag.TYPEVAR, convertFiled + ".class"))).expr)
-//                                );// 注解属性值
                                     log("append: ...");
                                     JCTree.JCAnnotation converterAnnotation = treeMaker.Annotation(
-                                            treeMaker.Ident(names.fromString(CryptoConverter.class.getName())),
+                                            treeMaker.Ident(names.fromString(CryptoConverter.class.getSimpleName())),
                                             List.of(
                                                     // convert() 默认为 Void.class
                                                     treeMaker.Assign(
                                                             treeMaker.Ident(names.fromString("convert")),
-                                                            treeMaker.Ident(names.fromString(Test.class.getName()))
+                                                            treeMaker.Ident(names.fromString(Test.class.getSimpleName()))
                                                     )
                                             )
                                     );
-                                    nil.append(converterAnnotation);
+                                    nil = nil.append(converterAnnotation);
                                     log("append:" + converterAnnotation.toString());
-//                                jcAnnotations.append(converterAnnotation);
-                                }else {
-                                    nil.append(jcAnnotation);
+                                } else {
+                                    nil = nil.append(jcAnnotation);
+                                    log("append original:" + jcAnnotation.toString());
                                 }
+
+                                log("nil size :" + nil.size());
                             }
 
                             jcVariableDecl.mods.annotations = nil;
                             log("list size is :" + jcAnnotations.size());
+                            log("list size is :" + jcVariableDecl.mods.annotations.size());
                         }
+                    } catch (Exception e) {
+                        log("error :" + e.getMessage());
+                        log("error :" + e.toString());
+                    }
+
+                    try {
+                        super.visitVarDef(jcVariableDecl);
                     }catch (Exception e) {
                         log("error :" + e.getMessage());
                         log("error :" + e.toString());
                     }
 
-                    super.visitVarDef(jcVariableDecl);
                 }
             });
         }
