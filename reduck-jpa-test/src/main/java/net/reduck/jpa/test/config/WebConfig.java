@@ -13,13 +13,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     @Autowired
-    TokenInterceptor tokenInterceptor;
+    private TokenInterceptor tokenInterceptor;
+    @Autowired
+    private OptionsInterceptor optionsInterceptor;
 
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(tokenInterceptor
-        );
+        registry.addInterceptor(optionsInterceptor);
+        registry.addInterceptor(tokenInterceptor);
     }
 
     @Override

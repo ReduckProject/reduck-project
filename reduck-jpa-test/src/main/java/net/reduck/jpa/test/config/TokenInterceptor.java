@@ -3,6 +3,7 @@ package net.reduck.jpa.test.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -27,8 +28,17 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object) throws Exception {
+        if(httpServletRequest.getMethod().equals(HttpMethod.OPTIONS.name())) {
+            return false;
+        }
         if(!"/error".equals(httpServletRequest.getRequestURI()) && httpServletRequest.getRequestURI().startsWith("/")){
             System.out.println(httpServletRequest.getRequestURI());
+        }
+
+        else {
+            httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpServletResponse.setHeader("Allow", "GET");
+            return false;
         }
 //        if (!(object instanceof HandlerMethod)) {
 //            return true;
@@ -69,5 +79,11 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
         logger.debug("调用 接口返回:" + httpServletRequest.getRequestURL() + " ");
+
+        if (HttpMethod.OPTIONS.name().equalsIgnoreCase(httpServletRequest.getMethod())) {
+            if (!httpServletResponse.containsHeader("Allow")) {
+                httpServletResponse.setHeader("Allow", "GET,POST,OPTIONS");
+            }
+        }
     }
 }
