@@ -37,6 +37,7 @@ public class StatisticUtils {
                     continue;
                 }
                 String suffix = MappingHelper.getUrl(javaMethod.getAnnotations());
+                System.out.println(javaMethod.getComment());
                 urls.add(prefix + suffix);
             }
         }
@@ -45,7 +46,8 @@ public class StatisticUtils {
     }
 
     public static void main(String[] args) throws IOException {
-        List<String> urls = getAllUrl(System.getProperty("user.home") + "/Documents/workspace/dsm/backend/src/main/java/com/secsmart/backend");
+//        List<String> urls = getAllUrl("/Users/zhanjinkai/Documents/GitHub/reduck-project/reduck-jpa-test/src/main/java/net/reduck/jpa/test/controller/TypeController.java");
+        List<String> urls = getAllUrl("/Users/zhanjinkai/.m2/repository/org/apache/activemq/activemq-all/5.11.0/activemq-all-5.11.0-sources.jar");
 
         urls.forEach(System.out::println);
         System.out.println(urls.size());
