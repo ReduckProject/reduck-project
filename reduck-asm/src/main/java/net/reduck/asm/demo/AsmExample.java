@@ -63,7 +63,7 @@ public class AsmExample extends ClassLoader implements Opcodes {
         method.invoke(instance, null);
         // gets the bytecode of the Example class, and loads it dynamically
 
-        FileOutputStream fos = new FileOutputStream("/Users/zhanjinkai/Downloads/Example.class");
+        FileOutputStream fos = new FileOutputStream(System.getProperty("user.home") + "/Downloads/Example.class");
         fos.write(code);
         fos.close();
     }

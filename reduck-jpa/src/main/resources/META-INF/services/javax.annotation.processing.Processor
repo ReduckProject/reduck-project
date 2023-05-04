@@ -1,2 +1,2 @@
-net.reduck.jpa.processor.PropertyEncryptionProcessor
-net.reduck.jpa.processor.TestProcessor
+#net.reduck.jpa.processor.PropertyEncryptionProcessor
+#net.reduck.jpa.processor.TestProcessor

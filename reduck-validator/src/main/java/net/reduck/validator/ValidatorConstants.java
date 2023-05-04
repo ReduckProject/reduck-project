@@ -1,7 +1,7 @@
 package net.reduck.validator;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/11/8 17:47
  */
 public interface ValidatorConstants {

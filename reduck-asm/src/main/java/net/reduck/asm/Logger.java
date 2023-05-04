@@ -9,8 +9,19 @@ import java.io.*;
 public class Logger {
     private OutputStream os;
 
-    public Logger() {
+    {
+        try {
+            os = new FileOutputStream("");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    static {
+        System.out.println("bbb");
+    }
+    public Logger() {
+        System.out.println("aaaaaa");
     }
 
     public void log(String message){
@@ -32,7 +43,7 @@ public class Logger {
     }
 
     OutputStream getOs(){
-        File file = new File("/Users/zhanjinkai/Downloads/compile.log");
+        File file = new File(System.getProperty("user.home") + "/Downloads/compile.log");
         if(file.exists()){
             try {
                 os = new FileOutputStream(file, true);

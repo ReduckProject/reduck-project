@@ -2,6 +2,7 @@ package net.reduck.jpa.processor;
 
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.api.JavacTrees;
+import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
@@ -28,7 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author Gin
+ * @author Reduck
  * @since 2022/9/29 10:11
  */
 @SupportedAnnotationTypes("net.reduck.jpa.processor.PropertyEncryption")
@@ -48,7 +49,7 @@ public class PropertyEncryptionProcessor extends AbstractProcessor {
 
     private Names names;
 
-    FileOutputStream os = new FileOutputStream(new File("/Users/zhanjinkai/Downloads/processor.log"), true);
+    FileOutputStream os = new FileOutputStream(new File(System.getProperty("user.home") + "/Downloads/processor.log"), true);
 
     private String convertPackageName = "javax.persistence";
     private String convertName = "Convert";
@@ -58,7 +59,7 @@ public class PropertyEncryptionProcessor extends AbstractProcessor {
     private String convertFiled = "PropertyEncryptionConvert";
 
     public PropertyEncryptionProcessor() throws FileNotFoundException {
-        File file = new File("/Users/zhanjinkai/Downloads/processor.log");
+        File file = new File(System.getProperty("user.home") + "/Downloads/processor.log");
         if (file.exists()) {
             try {
                 file.createNewFile();
@@ -178,18 +179,18 @@ public class PropertyEncryptionProcessor extends AbstractProcessor {
                         for (int i = 0; i < annotations.size(); i++) {
                             JCTree.JCAnnotation anno = annotations.get(i);
                             log("type is " + anno.type.toString());
-//                            if (PropertyEncryption.class.getName().equals(anno.type.toString())) {
-//                                JCTree.JCAnnotation e;
-//                                e = treeMaker.Annotation(treeMaker.Ident(names.fromString(convertName)), // 注解名称
-//                                        List.of(
-//                                                treeMaker.Exec(
-//                                                        treeMaker.Assign(treeMaker.Ident(names.fromString("converter")), // 注解属性
-//                                                                treeMaker.Literal(TypeTag.TYPEVAR, convertFiled + ".class"))).expr)
-//                                );// 注解属性值
-//                                nil = nil.append(e);
-//                            } else {
-//                                nil = nil.append(anno);
-//                            }
+                            if (PropertyEncryption.class.getName().equals(anno.type.toString())) {
+                                JCTree.JCAnnotation e;
+                                e = treeMaker.Annotation(treeMaker.Ident(names.fromString(convertName)), // 注解名称
+                                        List.of(
+                                                treeMaker.Exec(
+                                                        treeMaker.Assign(treeMaker.Ident(names.fromString("converter")), // 注解属性
+                                                                treeMaker.Literal(TypeTag.TYPEVAR, convertFiled + ".class"))).expr)
+                                );// 注解属性值
+                                nil = nil.append(e);
+                            } else {
+                                nil = nil.append(anno);
+                            }
                         }
                         // 修改方法注解
                         jcVariableDecl.mods.annotations = nil;

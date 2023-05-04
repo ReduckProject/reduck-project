@@ -13,18 +13,18 @@ import java.util.Set;
 /**
  * @author Reduck
  */
-public class CollectionDistinctHelper implements ConstraintValidator<CollectionDistinct, Collection> {
+public class CollectionDistinctHelper implements ConstraintValidator<CollectionDistinct, Collection<Object>> {
     private boolean nullable;
 
     @Override
     public boolean isValid(Collection value, ConstraintValidatorContext context) {
         if (!CollectionUtils.isEmpty(value)) {
-            Set set = new HashSet();
+            Set<Object> set = new HashSet<>();
             if (!nullable) {
                 set.add(null);
             }
 
-            Iterator iterator = value.iterator();
+            Iterator<?> iterator = value.iterator();
             while (iterator.hasNext()) {
                 Object o = iterator.next();
                 if (set.contains(o)) {

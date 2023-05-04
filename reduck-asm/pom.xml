@@ -11,25 +11,50 @@
     <artifactId>reduck-asm</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-all</artifactId>
-            <version>5.2</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.ow2.asm</groupId>-->
+<!--            <artifactId>asm-all</artifactId>-->
+<!--            <version>5.2</version>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>sun.tools</groupId>
-            <artifactId>tools</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/tools.jar</systemPath>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>sun.tools</groupId>-->
+<!--            <artifactId>tools</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${project.basedir}/lib/tools.jar</systemPath>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
             <version>3.24.7</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.ow2.asm</groupId>-->
+<!--            <artifactId>asm</artifactId>-->
+<!--            <version>7.1</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+<!--            <optional>true</optional>-->
+        </dependency>
+
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.ow2.asm</groupId>-->
+            <!--<artifactId>asm-all</artifactId>-->
+            <!--<version>5.2</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -47,7 +72,7 @@
                          <!-- -proc:none-->
                     <!--</compilerArgument>-->
 
-                    <proc>none</proc>
+<!--                    <proc>none</proc>-->
 
                     <compilerArguments>
                         <!--<bootclasspath>${java.home}/lib/tools.jar</bootclasspath>-->

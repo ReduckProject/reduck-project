@@ -1,7 +1,5 @@
 package net.reduck.jpa.test.vo;
 
-import net.reduck.asm.jsr269.Builder;
-
 /**
  * @author Reduck
  * @since 2022/9/2 18:13
@@ -24,7 +22,7 @@ public class BuilderVO {
         return girl;
     }
 
-    @Builder
+//    @Builder
     public void setGirl(String girl) {
         this.girl = girl;
     }

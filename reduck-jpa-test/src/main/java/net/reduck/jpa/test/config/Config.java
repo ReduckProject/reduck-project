@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.Ordered;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -69,6 +71,21 @@ public class Config {
 //                registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
                 registry.addResourceHandler("/images/**").addResourceLocations("classpath:/images2/");
             }
+
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+
+                registry.addMapping("/**")
+                        .allowedMethods("GET", "POST", "DELETE")
+                        .allowedOrigins("*")
+                        .allowedHeaders("*")
+                        .exposedHeaders("allow")
+                        .allowCredentials(true)
+                ;
+            }
         };
+
+
     }
+
 }

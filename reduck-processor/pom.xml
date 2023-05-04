@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.reduck</groupId>
+        <artifactId>reduck-project</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>reduck-processor</artifactId>
+    <name>reduck-processor</name>
+    <url>http://maven.apache.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.compiler.apt</artifactId>
+            <version>1.4.300</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sun.tools</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/tools.jar</systemPath>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF8</encoding>
+                    <!--<compilerArgument>-->
+                    <!-- -proc:none-->
+                    <!--</compilerArgument>-->
+
+                    <proc>none</proc>
+
+                    <compilerArguments>
+                        <!--<bootclasspath>${java.home}/lib/tools.jar</bootclasspath>-->
+                    </compilerArguments>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <!--<arg>-Werror</arg>-->
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
+                    <!--<annotationProcessors>-->
+                    <!--<annotationProcessor>-->
+                    <!--net.reduck.asm.jsr269.TestProcessor-->
+                    <!--</annotationProcessor>-->
+                    <!--</annotationProcessors>-->
+                    <fork>true</fork>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

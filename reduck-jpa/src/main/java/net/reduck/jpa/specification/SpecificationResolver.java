@@ -31,7 +31,7 @@ class SpecificationResolver<T> implements Specification<T> {
 
     private final Class targetClass;
     private final Map<String, Method> entityReadMethods;
-    private final List<QueryDescriptor> conditions;
+    private final List<PredicateDescriptor> conditions;
     private final Map<String, Join> joinMap = new HashMap<>();
     private final String id = "id";
     private final Object target;
@@ -46,7 +46,7 @@ class SpecificationResolver<T> implements Specification<T> {
         this.target = queryCondition;
     }
 
-    public SpecificationResolver(List<QueryDescriptor> queryCondition, Class<T> entityClass) {
+    public SpecificationResolver(List<PredicateDescriptor> queryCondition, Class<T> entityClass) {
         this.targetClass = Void.class;
         this.entityReadMethods = getPropertiesAndGetter(entityClass);
         this.conditions = queryCondition;
@@ -98,7 +98,7 @@ class SpecificationResolver<T> implements Specification<T> {
         Predicate predicate = criteriaBuilder.conjunction();
         // 自定义条件转换
         if (conditions.size() > 0) {
-            for (QueryDescriptor condition : conditions) {
+            for (PredicateDescriptor condition : conditions) {
                 if ((condition.joinName == null || condition.joinName.length == 0) && !entityReadMethods.containsKey(condition.columnName)) {
                     throw new RuntimeException("未知字段:" + condition.columnName);
                 }
@@ -112,7 +112,7 @@ class SpecificationResolver<T> implements Specification<T> {
                     nextPredicate = getInPredicate(nextPredicate, condition, criteriaBuilder, root);
                 }
 
-                switch (condition.linkedType) {
+                switch (condition.combined) {
                     case AND: {
                         predicate = criteriaBuilder.and(predicate, nextPredicate);
                         break;
@@ -141,7 +141,7 @@ class SpecificationResolver<T> implements Specification<T> {
      *
      * @return
      */
-    private Predicate resolve(QueryDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+    private Predicate resolve(PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
         Predicate predicate;
         switch (condition.operatorType) {
             // 小于等于
@@ -150,7 +150,7 @@ class SpecificationResolver<T> implements Specification<T> {
                 break;
 
             // 包含
-            case CONTAIN:
+            case CONTAINS:
                 if (condition.ignoreCase) {
                     predicate = (criteriaBuilder.like(criteriaBuilder.lower(getPath(condition, root)), "%" + escapeCharacter.escape(((String) condition.value).toLowerCase()) + "%"));
                 } else {
@@ -174,15 +174,15 @@ class SpecificationResolver<T> implements Specification<T> {
                 break;
 
             // 不等于
-            case NOT_EQUAL:
+            case NOT_EQUALS:
                 predicate = criteriaBuilder.notEqual(getPath(condition, root), condition.value);
                 break;
 
-            case BEGIN_WITH:
+            case STARTS_WITH:
                 predicate = criteriaBuilder.notLike(getPath(condition, root), condition.value + "%");
                 break;
 
-            case END_WITH:
+            case ENDS_WITH:
                 predicate = criteriaBuilder.notLike(getPath(condition, root), "%" + condition.value);
                 break;
 
@@ -217,7 +217,7 @@ class SpecificationResolver<T> implements Specification<T> {
                 break;
 
             // 默认等于
-            case EQUAL:
+            case EQUALS:
             default:
                 predicate = criteriaBuilder.equal(getPath(condition, root), condition.value);
                 break;
@@ -226,7 +226,7 @@ class SpecificationResolver<T> implements Specification<T> {
         return predicate;
     }
 
-    private Path getPath(QueryDescriptor condition, Root<T> root) {
+    private Path getPath(PredicateDescriptor condition, Root<T> root) {
         if (condition.joinName == null || condition.joinName.length == 0) {
             return root.get(condition.columnName);
         }
@@ -263,10 +263,10 @@ class SpecificationResolver<T> implements Specification<T> {
         return join;
     }
 
-    private Predicate getMultipleValuePredicate(QueryDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
-        if (condition.operatorType != OperatorType.END_WITH
-                && condition.operatorType != OperatorType.CONTAIN
-                && condition.operatorType != OperatorType.BEGIN_WITH
+    private Predicate getMultipleValuePredicate(PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+        if (condition.operatorType != CompareOperator.ENDS_WITH
+                && condition.operatorType != CompareOperator.CONTAINS
+                && condition.operatorType != CompareOperator.STARTS_WITH
         ) {
             return null;
         }
@@ -277,25 +277,25 @@ class SpecificationResolver<T> implements Specification<T> {
 
         List<Predicate> predicates = new ArrayList<>();
         for (Object values : (Collection) condition.value) {
-            QueryDescriptor newCondition = new QueryDescriptor(condition.name, condition.name, values, condition.operatorType);
+            PredicateDescriptor newCondition = new PredicateDescriptor(condition.name, condition.name, values, condition.operatorType);
             newCondition.setJoinName(condition.joinName);
             newCondition.setJoinType(condition.joinType);
             predicates.add(resolve(newCondition, criteriaBuilder, root));
         }
 
-        return condition.inLinkedType == SpecificationQuery.OperatorType.OR
+        return condition.multiCombined == SpecificationQuery.BooleanOperator.OR
                 ? criteriaBuilder.or(criteriaBuilder.or(predicates.toArray(new Predicate[]{})))
                 : criteriaBuilder.and(criteriaBuilder.and(predicates.toArray(new Predicate[]{})));
     }
 
-    private Predicate getInPredicate(Predicate predicate, QueryDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+    private Predicate getInPredicate(Predicate predicate, PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
         if (condition.inNames.size() == 0) {
             return predicate;
         }
 
         List<Predicate> predicates = new ArrayList<>();
         for (String name : condition.inNames) {
-            QueryDescriptor newCondition = new QueryDescriptor(name, name, condition.value, condition.operatorType);
+            PredicateDescriptor newCondition = new PredicateDescriptor(name, name, condition.value, condition.operatorType);
             newCondition.setJoinName(condition.joinName);
             newCondition.setJoinType(condition.joinType);
             predicates.add(resolve(newCondition, criteriaBuilder, root));
@@ -303,7 +303,7 @@ class SpecificationResolver<T> implements Specification<T> {
 
         predicates.add(predicate);
 
-        switch (condition.inLinkedType) {
+        switch (condition.multiCombined) {
             case AND:
                 return criteriaBuilder.and(criteriaBuilder.and(predicates.toArray(new Predicate[]{})));
 

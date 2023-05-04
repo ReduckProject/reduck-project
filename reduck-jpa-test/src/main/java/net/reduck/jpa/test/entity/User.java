@@ -1,6 +1,7 @@
 package net.reduck.jpa.test.entity;
 
 import lombok.Data;
+import net.reduck.jpa.processor.PropertyEncryption;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -16,8 +17,10 @@ import javax.persistence.Table;
 @Data
 public class User extends BaseEntity {
 
+    @PropertyEncryption
     private String username;
 
+    @PropertyEncryption
     private String password;
 
     @OneToOne(cascade = CascadeType.ALL)
