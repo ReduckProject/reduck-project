@@ -40,6 +40,7 @@
         <module>reduck-json2Java</module>
         <module>reduck-netools</module>
         <module>reduck-fake-data</module>
+        <module>reduck-processor</module>
     </modules>
 
     <dependencyManagement>
