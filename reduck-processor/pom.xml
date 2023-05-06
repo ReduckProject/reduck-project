@@ -9,6 +9,7 @@
     <artifactId>reduck-processor</artifactId>
     <name>reduck-processor</name>
     <url>http://maven.apache.org</url>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
