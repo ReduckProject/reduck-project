@@ -116,9 +116,10 @@ public class NativeQueryExecutor {
                             case "java.lang.Boolean":
                                 method.invoke(instance, rs.getDouble(columnName));
                                 return;
-//                            case "char":
-//                            case "java.lang.Character":
-//                                return;
+                            case "char":
+                            case "java.lang.Character":
+                                // should not go to here
+                                return;
                             case "java.math.BigDecimal":
                                 method.invoke(instance, rs.getBigDecimal(columnName));
                                 return;
