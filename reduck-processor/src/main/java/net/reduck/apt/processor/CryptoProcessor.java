@@ -1,8 +1,6 @@
 package net.reduck.apt.processor;
 
-import com.sun.source.util.TreePath;
 import com.sun.tools.javac.api.JavacTrees;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.JCTree;
@@ -10,7 +8,6 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 import net.reduck.apt.annotation.Crypto;
 import net.reduck.apt.annotation.CryptoConverter;
@@ -43,30 +40,11 @@ public class CryptoProcessor extends AbstractProcessor {
     private Filer filer = null;
     private Messager messager = null;
 
-    private static Map<String, String> existPackage = new ConcurrentHashMap<>();
-
     private JavacTrees trees;
-
     private TreeMaker treeMaker;
-
     private Names names;
-
     private Symtab symtab;
-
     private AstMojo astMojo;
-
-    FileOutputStream os = new FileOutputStream(new File(System.getProperty("user.home") + "/Downloads/processor.log"), true);
-
-    private String convertPackageName = CryptoConverter.class.getPackage().getName();
-    private String convertName = CryptoConverter.class.getSimpleName();
-
-    private Class convertClass = Crypto.class;
-    private String convertFiledPackageName = Test.class.getPackage().getName();
-    private String convertFiled = Test.class.getSimpleName();
-
-    private final String cryptoFullName = Crypto.class.getName();
-
-    private JCTree.JCAnnotation templateAnnotation;
 
     public CryptoProcessor() throws FileNotFoundException {
     }
@@ -83,122 +61,41 @@ public class CryptoProcessor extends AbstractProcessor {
             String typeName = typeElem.getQualifiedName().toString();
             astMojo.importIfAbsent(element, CryptoConverter.class);
             astMojo.importIfAbsent(element, Test.class);
-//            if (!existPackage.containsKey(typeName)) {
-//                TreePath path = trees.getPath(typeElem);
-//                JCTree.JCIdent jcIdent = treeMaker.Ident(names.fromString(convertPackageName));
-//                Name className = names.fromString(convertName);
-//                JCTree.JCFieldAccess jcFieldAccess = treeMaker.Select(jcIdent, className);
-//                JCTree.JCImport anImport = treeMaker.Import(jcFieldAccess, false);
-//
-//                // 导入注解类
-//                TreePath path = trees.getPath(typeElem);
-//                JCTree.JCCompilationUnit jccu = (JCTree.JCCompilationUnit) path.getCompilationUnit();
-//                jccu.defs = jccu.defs.prepend(anImport);
-//
-//                JCTree.JCIdent jcIdent2 = treeMaker.Ident(names.fromString(convertFiledPackageName));
-//                Name className2 = names.fromString(convertFiled);
-//                JCTree.JCFieldAccess jcFieldAccess2 = treeMaker.Select(jcIdent2, className2);
-//                JCTree.JCImport anImport2 = treeMaker.Import(jcFieldAccess2, false);
-//                // 导入转化类
-//                TreePath path2 = trees.getPath(typeElem);
-//                JCTree.JCCompilationUnit jccu2 = (JCTree.JCCompilationUnit) path2.getCompilationUnit();
-//                jccu2.defs = jccu2.defs.prepend(anImport2);
-//
-//                existPackage.put(typeName, "Exist");
-//            }
-
             JCTree jcTree = trees.getTree(typeElem);
 
             jcTree.accept(new TreeTranslator() {
 
                 @Override
                 public void visitVarDef(JCTree.JCVariableDecl jcVariableDecl) {
-                    log("field : " + jcVariableDecl.toString());
                     List<JCTree.JCAnnotation> jcAnnotations = jcVariableDecl.mods.annotations;
-
                     try {
                         if (jcAnnotations != null && jcAnnotations.size() > 0) {
                             List<JCTree.JCAnnotation> nil = List.nil();
 
                             for (JCTree.JCAnnotation jcAnnotation : jcAnnotations) {
                                 if (Crypto.class.getName().equals(jcAnnotation.getAnnotationType().type.tsym.toString())) {
-                                    log("append: ...");
                                     JCTree.JCAnnotation converterAnnotation = treeMaker.Annotation(
-                                            select(CryptoConverter.class.getName()),
-//                                            List.of(
-//                                                    // convert() 默认为 Void.class
-//                                                    treeMaker.Assign(
-//                                                            treeMaker.Ident(names.fromString("convert")),
-//                                                            select(Test.class.getName()))
-//                                                    )
-                                            List.nil()
-                                    );
-
-                                    converterAnnotation = treeMaker.Annotation(
-                                            select(CryptoConverter.class.getName())
+                                            astMojo.select(CryptoConverter.class.getName())
                                             ,List.of(treeMaker.Assign(treeMaker.Ident(names.fromString("convert"))
                                                             , treeMaker.Select(treeMaker.Ident(names.fromString(Test.class.getSimpleName()))
                                                             , names.fromString("class")))));
-                                    // 构造注解参数
-//                                    JCTree.JCExpression arg = treeMaker.Ident(names.fromString("Test.class"));
-//                                    List<JCTree.JCExpression> args = List.of(arg);// 构造注解
-//                                    JCTree.JCAnnotation annotation = treeMaker.Annotation(
-//                                            treeMaker.Ident(names.fromString("CryptoConverter.class")),
-//                                            args
-//                                    );
 
                                     nil = nil.append(converterAnnotation);
-                                    if (templateAnnotation != null) {
-//                                        nil = nil.append(templateAnnotation);
-                                        log(templateAnnotation.getTag()
-                                                + "," + templateAnnotation.getKind()
-                                                +  "," + templateAnnotation.getAnnotationType()
-                                                +  "," + templateAnnotation.getStartPosition()
-                                                +  "," + templateAnnotation.getPreferredPosition()
-                                                +  "," + templateAnnotation.getArguments()
-                                                +  "," + templateAnnotation.getTree()
-                                                +  "," + templateAnnotation.getTree().type
-                                                +  "," + templateAnnotation.getTree().pos
-                                        );
-
-//                                        converterAnnotation = annotation;
-                                        log(converterAnnotation.getTag()
-                                                + "," + converterAnnotation.getKind()
-                                                +  "," + converterAnnotation.getAnnotationType()
-                                                +  "," + converterAnnotation.getStartPosition()
-                                                +  "," + converterAnnotation.getPreferredPosition()
-                                                +  "," + converterAnnotation.getArguments()
-                                                +  "," + converterAnnotation.getTree()
-                                                +  "," + converterAnnotation.getTree().type
-                                                +  "," + converterAnnotation.getTree().pos
-                                        );
-                                    }
-                                    log("append:" + converterAnnotation.toString());
                                 } else {
-                                    if (CryptoConverter.class.getName().equals(jcAnnotation.getAnnotationType().type.tsym.toString())) {
-                                        templateAnnotation = jcAnnotation;
-                                    }
                                     nil = nil.append(jcAnnotation);
-                                    log("append original:" + jcAnnotation.toString());
                                 }
-
-                                log("nil size :" + nil.size());
                             }
 
                             jcVariableDecl.mods.annotations = nil;
-                            log("list size is :" + jcAnnotations.size());
-                            log("list size is :" + jcVariableDecl.mods.annotations.size());
                         }
                     } catch (Exception e) {
-                        log("error :" + e.getMessage());
-                        log("error :" + e.toString());
+                        System.err.println(e);
                     }
 
                     try {
                         super.visitVarDef(jcVariableDecl);
                     } catch (Exception e) {
-                        log("error :" + e.getMessage());
-                        log("error :" + e.toString());
+                        System.err.println(e);
                     }
 
                 }
@@ -206,36 +103,6 @@ public class CryptoProcessor extends AbstractProcessor {
         }
 
         return true;
-    }
-
-    JCTree.JCExpression select(String path) {
-        JCTree.JCExpression expression = null;
-        int i = 0;
-        for (String split : path.split("\\.")) {
-            if (i == 0)
-                expression = treeMaker.Ident(names.fromString(split));
-            else {
-                expression = treeMaker.Select(expression, names.fromString(split));
-            }
-            i++;
-        }
-
-        return expression;
-    }
-
-    JCTree.JCExpression select2(String path) {
-        JCTree.JCExpression expression = null;
-        int i = 0;
-        for (String split : path.split("\\.")) {
-            if (i == 0)
-                expression = treeMaker.Ident(names.fromString(split));
-            else {
-                expression = treeMaker.Select(expression, names.fromString("class"));
-            }
-            i++;
-        }
-
-        return expression;
     }
 
     @Override
@@ -255,17 +122,4 @@ public class CryptoProcessor extends AbstractProcessor {
 
         this.astMojo = new AstMojo(trees, treeMaker, names, symtab);
     }
-
-    private void log(String message) {
-        try {
-            os.write("\n".getBytes());
-            os.write((format.format(System.currentTimeMillis()) + " " + message).getBytes());
-            os.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
 }

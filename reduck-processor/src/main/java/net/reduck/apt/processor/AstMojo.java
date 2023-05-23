@@ -49,6 +49,21 @@ public class AstMojo {
         }
     }
 
+    public JCTree.JCExpression select(String path) {
+        JCTree.JCExpression expression = null;
+        int i = 0;
+        for (String split : path.split("\\.")) {
+            if (i == 0)
+                expression = treeMaker.Ident(names.fromString(split));
+            else {
+                expression = treeMaker.Select(expression, names.fromString(split));
+            }
+            i++;
+        }
+
+        return expression;
+    }
+
     public JCTree.JCIdent identFromString(String name) {
         return treeMaker.Ident(names.fromString(name));
     }

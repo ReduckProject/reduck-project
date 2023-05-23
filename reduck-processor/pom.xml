@@ -18,12 +18,19 @@
             <version>1.4.300</version>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>com.sun</groupId>-->
+<!--            <artifactId>tools</artifactId>-->
+<!--            <version>1.8</version>-->
+<!--            <scope>system</scope>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>sun.tools</groupId>
             <artifactId>tools</artifactId>
-            <version>1.0</version>
+            <version>1.8</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/tools.jar</systemPath>
+            <systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
         </dependency>
     </dependencies>
     <build>
