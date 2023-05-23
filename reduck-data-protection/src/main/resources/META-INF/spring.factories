@@ -1,2 +1,2 @@
 #org.springframework.boot.env.EnvironmentPostProcessor=net.reduck.data.protection.env.EncryptionEnvironmentPostProcessor
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=net.reduck.data.protection.AutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=net.reduck.data.protection.PropertiesCryptoAutoConfiguration

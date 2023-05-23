@@ -17,4 +17,6 @@ class ConfigurationCryptoProperties {
 
     public String secretKey;
 
+    private boolean enabled;
+
 }
