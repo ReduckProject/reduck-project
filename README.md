@@ -1,0 +1,41 @@
+# 模块说明
+* reduck-api-doc
+  * 主要用来实现文档生成
+* reduck-asm
+  * 学习java字节码相关
+* reduck-chat-server
+  * 实现聊天服务
+* reduck-cipher
+  * 实现加解密相关
+* reduck-ddns
+  * 动态DNS解析框架
+    * 目前已实现阿里云域名动态解析
+* reduck-data-protection
+  * 实现配置文件加密
+  * 实现JPA字段加密
+  * 实现URL敏感请求参数自动解密
+* reduck-dynamic-proxy
+  * 动态代理
+* reduck-fake-data
+  * 用于生成假数据
+* reduck-jpa
+  * SpringDataJPA 增强
+    * 实现基于注解的动态条件查询、分页
+    * 实现IDENTITY主键类型实体的批量插入
+    * 实现entity敏感字段自动加解密
+* reduck-jpa-test
+  * web测试服务
+  * 测试其他模块功能功能
+* reduck-oss
+  * 对象存储相关
+* reduck-processor
+  * 基于Java APT 实现的注解转换，辅助实现entity自动加解密
+* reduck-netools
+  * 一系列网络工具实现
+    * ftp
+    * ssh
+    * scp
+* reduck-tool
+  * 一系列小工具
+* reduck-validator
+  * 基于JSR-310的扩展支持
