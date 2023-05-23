@@ -19,4 +19,5 @@ import java.lang.annotation.Target;
 @JsonMerge
 public @interface PropertyEncryption {
 
+
 }
