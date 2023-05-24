@@ -9,6 +9,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
@@ -18,8 +20,8 @@ import java.util.Enumeration;
  * @since 2023/5/23 16:09
  */
 public class PrivateKeyFinder {
-    private static final String PRIVATE_KEY_RESOURCE_LOCATION = "key/privateKey";
-    private static final String PUBLIC_KEY_RESOURCE_LOCATION = "key/publicKey";
+    private static final String PRIVATE_KEY_RESOURCE_LOCATION = "META-INF/configuration.crypto.private-key";
+    private static final String PUBLIC_KEY_RESOURCE_LOCATION = "META-INF/configuration.crypto.public-key";
     private final byte[] keyInfo = new byte[]{
             (byte) 0xD0, (byte) 0x20, (byte) 0xDA, (byte) 0x92, (byte) 0xC8, (byte) 0x0B, (byte) 0x6D, (byte) 0x57,
             (byte) 0x48, (byte) 0x7B, (byte) 0x15, (byte) 0x3A, (byte) 0x44, (byte) 0xA0, (byte) 0x98, (byte) 0xC2,
@@ -37,23 +39,31 @@ public class PrivateKeyFinder {
     }
 
     static String generateSecretKey() {
-        return Base64.getEncoder().encodeToString(RsaUtils.encrypt("reduck---project".getBytes(), Base64.getDecoder().decode(loadPublicKey())));
+        return Base64.getEncoder().encodeToString(RsaUtils.encrypt(new SecureRandom().generateSeed(16), Base64.getDecoder().decode(loadPublicKey())));
+    }
+
+    static String generateSecretKeyWith256() {
+        return Base64.getEncoder().encodeToString(RsaUtils.encrypt(new SecureRandom().generateSeed(32), Base64.getDecoder().decode(loadPublicKey())));
     }
 
     @SneakyThrows
     static byte[] loadPrivateKey() {
-        return loadFile(PRIVATE_KEY_RESOURCE_LOCATION);
+        return loadResource(PRIVATE_KEY_RESOURCE_LOCATION);
     }
 
     @SneakyThrows
     static byte[] loadPublicKey() {
-        return loadFile(PUBLIC_KEY_RESOURCE_LOCATION);
+        return loadResource(PUBLIC_KEY_RESOURCE_LOCATION);
     }
 
     @SneakyThrows
-    private static byte[] loadFile(String location) {
-        Enumeration<URL> enumeration = PrivateKeyFinder.class.getClassLoader().getResources(location);
+    private static byte[] loadResource(String location) {
+        // just lookup from current jar  path
+        ClassLoader classLoader = new URLClassLoader(new URL[]{PrivateKeyFinder.class.getProtectionDomain().getCodeSource().getLocation()}, null);
+//        classLoader = PrivateKeyFinder.class.getClassLoader();
+        Enumeration<URL> enumeration = classLoader.getResources(location);
 
+        // should only find one
         while (enumeration.hasMoreElements()) {
             URL url = enumeration.nextElement();
             UrlResource resource = new UrlResource(url);
@@ -64,6 +74,7 @@ public class PrivateKeyFinder {
     }
 
     private final String CIPHER_ALGORITHM = "AES/CBC/NoPadding";
+    private final String KEY_TYPE = "AES";
 
     @SneakyThrows
     public byte[] encrypt(byte[] data) {
@@ -72,7 +83,7 @@ public class PrivateKeyFinder {
         System.arraycopy(keyInfo, 0, key, 0, 32);
         System.arraycopy(keyInfo, 32, iv, 0, 16);
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
+        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, KEY_TYPE), new IvParameterSpec(iv));
         return cipher.doFinal(data);
     }
 
@@ -84,7 +95,7 @@ public class PrivateKeyFinder {
         System.arraycopy(keyInfo, 32, iv, 0, 16);
 
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, KEY_TYPE), new IvParameterSpec(iv));
         return cipher.doFinal(data);
     }
 
