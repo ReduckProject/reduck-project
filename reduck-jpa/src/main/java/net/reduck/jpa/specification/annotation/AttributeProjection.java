@@ -111,5 +111,6 @@ public @interface AttributeProjection {
 
     Class<? extends AttributeTransformer> transformer() default AttributeTransformer.class;
 
+
 }
 

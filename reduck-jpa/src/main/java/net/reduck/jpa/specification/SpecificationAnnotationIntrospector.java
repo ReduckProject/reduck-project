@@ -1,5 +1,7 @@
 package net.reduck.jpa.specification;
 
+import lombok.SneakyThrows;
+import net.reduck.jpa.entity.transformer.AttributeTransformer;
 import net.reduck.jpa.specification.annotation.AttributeIgnore;
 import net.reduck.jpa.specification.annotation.AttributeProjection;
 import net.reduck.jpa.specification.annotation.Date;
@@ -90,6 +92,8 @@ class SpecificationAnnotationIntrospector {
         return customConditions;
     }
 
+    @SuppressWarnings("unchecked")
+    @SneakyThrows
     static void addDescriptor(Annotations annotations, String name, Method method, Object target, List<AttributeProjectionDescriptor> descriptors) {
         Object value = invoke(method, target);
 
@@ -103,6 +107,10 @@ class SpecificationAnnotationIntrospector {
 
             if (!"".equals(query.castMethod())) {
                 value = invoke(Objects.requireNonNull(BeanUtils.findMethod(target.getClass(), query.castMethod())), target);
+            }
+
+            if(query.transformer() != null && query.transformer() == AttributeTransformer.class) {
+                value = query.transformer().newInstance().toColumn(value);
             }
 
             // null 值忽略
