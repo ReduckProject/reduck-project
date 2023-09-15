@@ -1,6 +1,7 @@
 package net.reduck.jpa.specification;
 
-import net.reduck.jpa.specification.annotation.SpecificationQuery;
+import net.reduck.jpa.specification.enums.CombineOperator;
+import net.reduck.jpa.specification.enums.CompareOperator;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.JoinType;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class SpecificationQueryBuilder {
 
-    private List<PredicateDescriptor> descriptors = new ArrayList<>();
+    private List<AttributeProjectionDescriptor> descriptors = new ArrayList<>();
 
 //    public SpecificationQueryBuilder and(String property, Object value) {
 //        add(property, value, OperatorType.EQUAL, SpecificationQuery.OperatorType.AND, null);
@@ -61,9 +62,9 @@ public class SpecificationQueryBuilder {
         return new SpecificationResolver<>(this.descriptors, domainClass);
     }
 
-    private void add(String property, Object value, CompareOperator type, SpecificationQuery.BooleanOperator operatorType, String... join) {
-        PredicateDescriptor descriptor = new PredicateDescriptor(property, property, value, type);
-        descriptor.setCombined(operatorType);
+    private void add(String property, Object value, CompareOperator type, CombineOperator operatorType, String... join) {
+        AttributeProjectionDescriptor descriptor = new AttributeProjectionDescriptor(property, property, value, type);
+        descriptor.setCombine(operatorType);
         if (join != null) {
             descriptor.setJoinName(join);
             descriptor.setJoinType(JoinType.LEFT);
@@ -71,9 +72,9 @@ public class SpecificationQueryBuilder {
         descriptors.add(descriptor);
     }
 
-    void add2(String property, Object value, CompareOperator type, SpecificationQuery.BooleanOperator operatorType, List<String> joins) {
-        PredicateDescriptor descriptor = new PredicateDescriptor(property, property, value, type);
-        descriptor.setCombined(operatorType);
+    void add2(String property, Object value, CompareOperator type, CombineOperator operatorType, List<String> joins) {
+        AttributeProjectionDescriptor descriptor = new AttributeProjectionDescriptor(property, property, value, type);
+        descriptor.setCombine(operatorType);
         if (joins != null && joins.size() > 0) {
             descriptor.setJoinName(joins.toArray(new String[0]));
             descriptor.setJoinType(JoinType.LEFT);
@@ -82,11 +83,11 @@ public class SpecificationQueryBuilder {
     }
 
     public Matcher and(String property) {
-        return new Matcher(this, property, SpecificationQuery.BooleanOperator.AND);
+        return new Matcher(this, property, CombineOperator.AND);
     }
 
     public Matcher or(String property) {
-        return new Matcher(this, property, SpecificationQuery.BooleanOperator.OR);
+        return new Matcher(this, property, CombineOperator.OR);
     }
 
     public static class Matcher {
@@ -94,7 +95,7 @@ public class SpecificationQueryBuilder {
         private String property;
         private Object value;
         private CompareOperator type = CompareOperator.EQUALS;
-        private SpecificationQuery.BooleanOperator operatorType = SpecificationQuery.BooleanOperator.AND;
+        private CombineOperator operatorType = CombineOperator.AND;
         private List<String> joins = new LinkedList<>();
         private JoinType joinType = JoinType.LEFT;
 
@@ -102,19 +103,19 @@ public class SpecificationQueryBuilder {
             this.builder = builder;
         }
 
-        public Matcher(SpecificationQueryBuilder builder, String property, SpecificationQuery.BooleanOperator operatorType) {
+        public Matcher(SpecificationQueryBuilder builder, String property, CombineOperator operatorType) {
             this.builder = builder;
             this.operatorType = operatorType;
             this.property = property;
         }
 
         private Matcher and() {
-            operatorType = SpecificationQuery.BooleanOperator.AND;
+            operatorType = CombineOperator.AND;
             return this;
         }
 
         private Matcher or() {
-            operatorType = SpecificationQuery.BooleanOperator.OR;
+            operatorType = CombineOperator.OR;
             return this;
         }
 

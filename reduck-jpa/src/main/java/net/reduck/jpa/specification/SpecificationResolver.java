@@ -1,8 +1,9 @@
 package net.reduck.jpa.specification;
 
 import net.reduck.jpa.specification.annotation.Distinct;
-import net.reduck.jpa.specification.annotation.SpecificationQuery;
-import net.reduck.jpa.specification.annotation.SpecificationSubquery;
+import net.reduck.jpa.specification.annotation.Subquery;
+import net.reduck.jpa.specification.enums.CombineOperator;
+import net.reduck.jpa.specification.enums.CompareOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -31,7 +32,7 @@ class SpecificationResolver<T> implements Specification<T> {
 
     private final Class targetClass;
     private final Map<String, Method> entityReadMethods;
-    private final List<PredicateDescriptor> conditions;
+    private final List<AttributeProjectionDescriptor> conditions;
     private final Map<String, Join> joinMap = new HashMap<>();
     private final String id = "id";
     private final Object target;
@@ -46,7 +47,7 @@ class SpecificationResolver<T> implements Specification<T> {
         this.target = queryCondition;
     }
 
-    public SpecificationResolver(List<PredicateDescriptor> queryCondition, Class<T> entityClass) {
+    public SpecificationResolver(List<AttributeProjectionDescriptor> queryCondition, Class<T> entityClass) {
         this.targetClass = Void.class;
         this.entityReadMethods = getPropertiesAndGetter(entityClass);
         this.conditions = queryCondition;
@@ -80,7 +81,7 @@ class SpecificationResolver<T> implements Specification<T> {
             }
         }
 
-        if (AnnotationUtils.findAnnotation(targetClass, SpecificationSubquery.class) != null) {
+        if (AnnotationUtils.findAnnotation(targetClass, Subquery.class) != null) {
             javax.persistence.criteria.Subquery subquery = query.subquery(root.getJavaType());
             Root<T> subRoot = subquery.from(root.getJavaType());
             subquery.select(subRoot.get(id));
@@ -98,7 +99,7 @@ class SpecificationResolver<T> implements Specification<T> {
         Predicate predicate = criteriaBuilder.conjunction();
         // 自定义条件转换
         if (conditions.size() > 0) {
-            for (PredicateDescriptor condition : conditions) {
+            for (AttributeProjectionDescriptor condition : conditions) {
                 if ((condition.joinName == null || condition.joinName.length == 0) && !entityReadMethods.containsKey(condition.columnName)) {
                     throw new RuntimeException("未知字段:" + condition.columnName);
                 }
@@ -112,7 +113,7 @@ class SpecificationResolver<T> implements Specification<T> {
                     nextPredicate = getInPredicate(nextPredicate, condition, criteriaBuilder, root);
                 }
 
-                switch (condition.combined) {
+                switch (condition.combine) {
                     case AND: {
                         predicate = criteriaBuilder.and(predicate, nextPredicate);
                         break;
@@ -141,7 +142,7 @@ class SpecificationResolver<T> implements Specification<T> {
      *
      * @return
      */
-    private Predicate resolve(PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+    private Predicate resolve(AttributeProjectionDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
         Predicate predicate;
         switch (condition.operatorType) {
             // 小于等于
@@ -226,7 +227,7 @@ class SpecificationResolver<T> implements Specification<T> {
         return predicate;
     }
 
-    private Path getPath(PredicateDescriptor condition, Root<T> root) {
+    private Path getPath(AttributeProjectionDescriptor condition, Root<T> root) {
         if (condition.joinName == null || condition.joinName.length == 0) {
             return root.get(condition.columnName);
         }
@@ -263,7 +264,7 @@ class SpecificationResolver<T> implements Specification<T> {
         return join;
     }
 
-    private Predicate getMultipleValuePredicate(PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+    private Predicate getMultipleValuePredicate(AttributeProjectionDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
         if (condition.operatorType != CompareOperator.ENDS_WITH
                 && condition.operatorType != CompareOperator.CONTAINS
                 && condition.operatorType != CompareOperator.STARTS_WITH
@@ -277,25 +278,25 @@ class SpecificationResolver<T> implements Specification<T> {
 
         List<Predicate> predicates = new ArrayList<>();
         for (Object values : (Collection) condition.value) {
-            PredicateDescriptor newCondition = new PredicateDescriptor(condition.name, condition.name, values, condition.operatorType);
+            AttributeProjectionDescriptor newCondition = new AttributeProjectionDescriptor(condition.name, condition.name, values, condition.operatorType);
             newCondition.setJoinName(condition.joinName);
             newCondition.setJoinType(condition.joinType);
             predicates.add(resolve(newCondition, criteriaBuilder, root));
         }
 
-        return condition.multiCombined == SpecificationQuery.BooleanOperator.OR
+        return condition.innerCombine == CombineOperator.OR
                 ? criteriaBuilder.or(criteriaBuilder.or(predicates.toArray(new Predicate[]{})))
                 : criteriaBuilder.and(criteriaBuilder.and(predicates.toArray(new Predicate[]{})));
     }
 
-    private Predicate getInPredicate(Predicate predicate, PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
-        if (condition.inNames.size() == 0) {
+    private Predicate getInPredicate(Predicate predicate, AttributeProjectionDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+        if (condition.innerNames.size() == 0) {
             return predicate;
         }
 
         List<Predicate> predicates = new ArrayList<>();
-        for (String name : condition.inNames) {
-            PredicateDescriptor newCondition = new PredicateDescriptor(name, name, condition.value, condition.operatorType);
+        for (String name : condition.innerNames) {
+            AttributeProjectionDescriptor newCondition = new AttributeProjectionDescriptor(name, name, condition.value, condition.operatorType);
             newCondition.setJoinName(condition.joinName);
             newCondition.setJoinType(condition.joinType);
             predicates.add(resolve(newCondition, criteriaBuilder, root));
@@ -303,7 +304,7 @@ class SpecificationResolver<T> implements Specification<T> {
 
         predicates.add(predicate);
 
-        switch (condition.multiCombined) {
+        switch (condition.innerCombine) {
             case AND:
                 return criteriaBuilder.and(criteriaBuilder.and(predicates.toArray(new Predicate[]{})));
 

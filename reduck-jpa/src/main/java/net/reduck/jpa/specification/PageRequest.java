@@ -1,26 +1,25 @@
 package net.reduck.jpa.specification;
 
-import net.reduck.jpa.processor.PropertyEncryption;
-import net.reduck.jpa.specification.annotation.SpecificationIgnore;
+import net.reduck.jpa.specification.annotation.AttributeIgnore;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import javax.ws.rs.DefaultValue;
 
 public class PageRequest {
-    @SpecificationIgnore
+    @AttributeIgnore
     @DefaultValue("15")
     private int rows = 15;
 
-    @SpecificationIgnore
+    @AttributeIgnore
     @DefaultValue("1")
     private int page = 1;
 
-    @SpecificationIgnore
+    @AttributeIgnore
     @DefaultValue("id")
     private String sortProperty = "id";
 
-    @SpecificationIgnore
+    @AttributeIgnore
     private Sort.Direction sortDirection = Sort.Direction.DESC;
 
     public PageRequest() {
@@ -38,7 +37,7 @@ public class PageRequest {
         this.sortDirection = sortDirection;
     }
 
-    @SpecificationIgnore
+    @AttributeIgnore
     public int getRows() {
         return rows;
     }
@@ -47,7 +46,7 @@ public class PageRequest {
         this.rows = rows;
     }
 
-    @SpecificationIgnore
+    @AttributeIgnore
     public int getPage() {
         return page;
     }
@@ -56,7 +55,7 @@ public class PageRequest {
         this.page = page;
     }
 
-    @SpecificationIgnore
+    @AttributeIgnore
     public String getSortProperty() {
         return sortProperty;
     }
@@ -65,7 +64,7 @@ public class PageRequest {
         this.sortProperty = sortProperty;
     }
 
-    @SpecificationIgnore
+    @AttributeIgnore
     public Sort.Direction getSortDirection() {
         return sortDirection;
     }

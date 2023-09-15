@@ -1,8 +1,9 @@
 package net.reduck.jpa.specification;
 
+import net.reduck.jpa.specification.annotation.AttributeIgnore;
+import net.reduck.jpa.specification.annotation.AttributeProjection;
 import net.reduck.jpa.specification.annotation.Date;
-import net.reduck.jpa.specification.annotation.SpecificationIgnore;
-import net.reduck.jpa.specification.annotation.SpecificationQuery;
+import net.reduck.jpa.specification.enums.CompareOperator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 
@@ -32,8 +33,8 @@ class SpecificationAnnotationIntrospector {
      *
      * @return
      */
-    static List<PredicateDescriptor> getQueryDescriptors(Object o) {
-        List<PredicateDescriptor> customConditions = new ArrayList<>();
+    static List<AttributeProjectionDescriptor> getQueryDescriptors(Object o) {
+        List<AttributeProjectionDescriptor> customConditions = new ArrayList<>();
         Map<String, Method> properties = getPropertiesAndGetter(o.getClass());
 
         // 仅获取当前类的属性，不获取父类属性
@@ -48,12 +49,12 @@ class SpecificationAnnotationIntrospector {
                 continue;
             }
 
-            if (field.getAnnotation(SpecificationIgnore.class) != null) {
+            if (field.getAnnotation(AttributeIgnore.class) != null) {
                 ignoreSet.add(field.getName());
                 continue;
             }
 
-            queryMap.put(field.getName(), new Annotations(field.getAnnotation(SpecificationQuery.class), field.getAnnotation(Date.class)));
+            queryMap.put(field.getName(), new Annotations(field.getAnnotation(AttributeProjection.class), field.getAnnotation(Date.class)));
         }
 
         for (Map.Entry<String, Method> entry : properties.entrySet()) {
@@ -67,13 +68,13 @@ class SpecificationAnnotationIntrospector {
             }
 
             // property 标有忽略注解不进行处理，此处可不添加到  ignoreSet里
-            if (AnnotationUtils.findAnnotation(entry.getValue(), SpecificationIgnore.class) != null) {
+            if (AnnotationUtils.findAnnotation(entry.getValue(), AttributeIgnore.class) != null) {
                 queryMap.remove(entry.getKey());
                 continue;
             }
 
             queryMap.put(entry.getKey()
-                    , new Annotations(AnnotationUtils.findAnnotation(entry.getValue(), SpecificationQuery.class)
+                    , new Annotations(AnnotationUtils.findAnnotation(entry.getValue(), AttributeProjection.class)
                             , AnnotationUtils.findAnnotation(entry.getValue(), Date.class)));
         }
 
@@ -89,11 +90,11 @@ class SpecificationAnnotationIntrospector {
         return customConditions;
     }
 
-    static void addDescriptor(Annotations annotations, String name, Method method, Object target, List<PredicateDescriptor> descriptors) {
+    static void addDescriptor(Annotations annotations, String name, Method method, Object target, List<AttributeProjectionDescriptor> descriptors) {
         Object value = invoke(method, target);
 
         if (annotations.query != null) {
-            SpecificationQuery query = annotations.query;
+            AttributeProjection query = annotations.query;
             // Arrays.asList()转化后是个内部的List,且未实现add方法，故长度固定
             List<String> columns = new ArrayList<>(Arrays.asList(query.property()));
             if (columns.size() == 0) {
@@ -128,23 +129,23 @@ class SpecificationAnnotationIntrospector {
             }
 
             int i = 1;
-            PredicateDescriptor customCondition = null;
+            AttributeProjectionDescriptor customCondition = null;
             for (String columnName : columns) {
                 if (i == 1) {
-                    customCondition = new PredicateDescriptor(columnName, name, value, query.compare());
+                    customCondition = new AttributeProjectionDescriptor(columnName, name, value, query.compare());
                     if ("".equals(query.ignoreCaseMethod())) {
                         customCondition.setIgnoreCase(query.ignoreCase());
                     } else {
                         Boolean ignoreCase = (Boolean) invoke(Objects.requireNonNull(BeanUtils.findMethod(target.getClass(), query.ignoreCaseMethod())), target);
                         customCondition.setIgnoreCase(ignoreCase != null && ignoreCase);
                     }
-                    customCondition.setCombined(query.operator());
+                    customCondition.setCombine(query.combine());
                     customCondition.setJoinName(query.join());
                     customCondition.setJoinType(query.joinType());
                     descriptors.add(customCondition);
                 } else {
-                    customCondition.inNames.add(columnName);
-                    customCondition.multiCombined = query.multiOperator();
+                    customCondition.innerNames.add(columnName);
+                    customCondition.innerCombine = query.innerCombine();
                 }
                 i++;
             }
@@ -163,7 +164,7 @@ class SpecificationAnnotationIntrospector {
                 }
             }
 
-            descriptors.add(new PredicateDescriptor(name, name, invoke(method, target), CompareOperator.EQUALS));
+            descriptors.add(new AttributeProjectionDescriptor(name, name, invoke(method, target), CompareOperator.EQUALS));
         }
     }
 
@@ -229,12 +230,12 @@ class SpecificationAnnotationIntrospector {
     }
 
     protected static class Annotations {
-        public Annotations(SpecificationQuery query, Date date) {
+        public Annotations(AttributeProjection query, Date date) {
             this.query = query;
             this.date = date;
         }
 
-        SpecificationQuery query;
+        AttributeProjection query;
 
         Date date;
     }

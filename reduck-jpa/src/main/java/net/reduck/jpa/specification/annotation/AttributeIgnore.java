@@ -12,5 +12,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface SpecificationIgnore {
+public @interface AttributeIgnore {
 }

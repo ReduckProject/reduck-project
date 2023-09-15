@@ -2,7 +2,8 @@ package net.reduck.jpa.specification;
 
 
 
-import net.reduck.jpa.specification.annotation.SpecificationQuery;
+import net.reduck.jpa.specification.enums.CombineOperator;
+import net.reduck.jpa.specification.enums.CompareOperator;
 
 import javax.persistence.criteria.JoinType;
 import java.util.HashSet;
@@ -12,15 +13,15 @@ import java.util.Set;
  * @author Reduck
  * @since 2019/6/10 17:23
  */
-public class PredicateDescriptor {
-    PredicateDescriptor(String columnName, String name, Object value, CompareOperator operatorType) {
+public class AttributeProjectionDescriptor {
+    AttributeProjectionDescriptor(String columnName, String name, Object value, CompareOperator operatorType) {
         this.columnName = columnName;
         this.name = name;
         this.value = value;
         this.operatorType = operatorType;
     }
 
-    public PredicateDescriptor(String name, Object value, CompareOperator operatorType) {
+    public AttributeProjectionDescriptor(String name, Object value, CompareOperator operatorType) {
         this.name = name;
         this.value = value;
         this.operatorType = operatorType;
@@ -39,7 +40,7 @@ public class PredicateDescriptor {
     /**
      * 内部查询条件
      */
-    Set<String> inNames = new HashSet<>();
+    Set<String> innerNames = new HashSet<>();
 
     /**
      * 条件对应值，须和实体列类型一一对应
@@ -60,15 +61,15 @@ public class PredicateDescriptor {
     /**
      * 外部查询关联
      */
-    SpecificationQuery.BooleanOperator combined = SpecificationQuery.BooleanOperator.AND;
+    CombineOperator combine = CombineOperator.AND;
 
     /**
      * 内部查询关联
      */
-    SpecificationQuery.BooleanOperator multiCombined = SpecificationQuery.BooleanOperator.AND;
+    CombineOperator innerCombine = CombineOperator.AND;
 
-    void setCombined(SpecificationQuery.BooleanOperator combined) {
-        this.combined = combined;
+    void setCombine(CombineOperator combine) {
+        this.combine = combine;
     }
 
     void setIgnoreCase(boolean ignoreCase) {

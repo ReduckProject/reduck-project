@@ -1,7 +1,8 @@
 package net.reduck.jpa.specification;
 
 import lombok.extern.slf4j.Slf4j;
-import net.reduck.jpa.specification.annotation.SpecificationQuery;
+import net.reduck.jpa.specification.enums.CombineOperator;
+import net.reduck.jpa.specification.enums.CompareOperator;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.util.StringUtils;
 
@@ -46,7 +47,7 @@ public class PredicateFactory<T> {
 
         // 自定义条件转换
         if (predicateInfo.getDescriptors() != null) {
-            for (PredicateDescriptor condition : predicateInfo.getDescriptors()) {
+            for (AttributeProjectionDescriptor condition : predicateInfo.getDescriptors()) {
 
                 // 处理 like 多值
                 Predicate nextPredicate = getMultipleValuePredicate(condition, criteriaBuilder, root);
@@ -56,11 +57,11 @@ public class PredicateFactory<T> {
                     nextPredicate = getInPredicate(nextPredicate, condition, criteriaBuilder, root);
                 }
 
-                if(condition.combined == SpecificationQuery.BooleanOperator.AND) {
+                if(condition.combine == CombineOperator.AND) {
                     predicate = criteriaBuilder.and(nextPredicate);
                 }
 
-                if(condition.combined == SpecificationQuery.BooleanOperator.OR) {
+                if(condition.combine == CombineOperator.OR) {
                     predicate = criteriaBuilder.or(nextPredicate);
                 }
             }
@@ -68,7 +69,7 @@ public class PredicateFactory<T> {
         return predicate;
     }
 
-    public Predicate processPredicateCondition(PredicateDescriptor condition) {
+    public Predicate processPredicateCondition(AttributeProjectionDescriptor condition) {
         Predicate predicate;
         switch (condition.operatorType) {
             // 小于等于
@@ -153,7 +154,7 @@ public class PredicateFactory<T> {
         return predicate;
     }
 
-    private Path getPath(PredicateDescriptor condition, Root<T> root) {
+    private Path getPath(AttributeProjectionDescriptor condition, Root<T> root) {
         if (condition.joinName == null || condition.joinName.length == 0) {
             return root.get(condition.columnName);
         }
@@ -202,7 +203,7 @@ public class PredicateFactory<T> {
         return StringUtils.hasText(value) ? escape.escape(value) : value;
     }
 
-    private Predicate getMultipleValuePredicate(PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+    private Predicate getMultipleValuePredicate(AttributeProjectionDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
         if (condition.operatorType != CompareOperator.ENDS_WITH
                 && condition.operatorType != CompareOperator.CONTAINS
                 && condition.operatorType != CompareOperator.STARTS_WITH
@@ -216,25 +217,25 @@ public class PredicateFactory<T> {
 
         List<Predicate> predicates = new ArrayList<>();
         for (Object values : (Collection) condition.value) {
-            PredicateDescriptor newCondition = new PredicateDescriptor(condition.name, condition.name, values, condition.operatorType);
+            AttributeProjectionDescriptor newCondition = new AttributeProjectionDescriptor(condition.name, condition.name, values, condition.operatorType);
             newCondition.setJoinName(condition.joinName);
             newCondition.setJoinType(condition.joinType);
             predicates.add(processPredicateCondition(newCondition));
         }
 
-        return condition.multiCombined == SpecificationQuery.BooleanOperator.OR
+        return condition.innerCombine == CombineOperator.OR
                 ? criteriaBuilder.or(criteriaBuilder.or(predicates.toArray(new Predicate[]{})))
                 : criteriaBuilder.and(criteriaBuilder.and(predicates.toArray(new Predicate[]{})));
     }
 
-    private Predicate getInPredicate(Predicate predicate, PredicateDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
-        if (condition.inNames.size() == 0) {
+    private Predicate getInPredicate(Predicate predicate, AttributeProjectionDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {
+        if (condition.innerNames.size() == 0) {
             return predicate;
         }
 
         List<Predicate> predicates = new ArrayList<>();
-        for (String name : condition.inNames) {
-            PredicateDescriptor newCondition = new PredicateDescriptor(name, name, condition.value, condition.operatorType);
+        for (String name : condition.innerNames) {
+            AttributeProjectionDescriptor newCondition = new AttributeProjectionDescriptor(name, name, condition.value, condition.operatorType);
             newCondition.setJoinName(condition.joinName);
             newCondition.setJoinType(condition.joinType);
             predicates.add(processPredicateCondition(newCondition));
@@ -242,7 +243,7 @@ public class PredicateFactory<T> {
 
         predicates.add(predicate);
 
-        switch (condition.multiCombined) {
+        switch (condition.innerCombine) {
             case AND:
                 return criteriaBuilder.and(criteriaBuilder.and(predicates.toArray(new Predicate[]{})));
 

@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface SpecificationSubquery {
+public @interface Subquery {
     /**
      * 指定当哪些 properties 存在时进行子查询，若不指定则默认所有
      *

@@ -1,6 +1,9 @@
 package net.reduck.jpa.specification.annotation;
 
-import net.reduck.jpa.specification.CompareOperator;
+import net.reduck.jpa.entity.transformer.AttributeTransformer;
+import net.reduck.jpa.specification.enums.CombineOperator;
+import net.reduck.jpa.specification.enums.CompareOperator;
+import net.reduck.jpa.specification.enums.MatchType;
 
 import javax.persistence.criteria.JoinType;
 import java.lang.annotation.*;
@@ -14,7 +17,8 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface SpecificationQuery {
+public @interface AttributeProjection {
+
     /**
      * entity 属性名称
      *
@@ -88,42 +92,24 @@ public @interface SpecificationQuery {
      *
      * @return
      */
-    BooleanOperator operator() default BooleanOperator.AND;
+    CombineOperator combine() default CombineOperator.AND;
 
     /**
      * 内部字段查询关系
      *
      * @return
      */
-    BooleanOperator multiOperator() default BooleanOperator.OR;
+    CombineOperator innerCombine() default CombineOperator.OR;
 
     /**
      * Detect is valid parameter
      *
      * @return
      */
-    Matches match() default Matches.NOT_EMPTY;
+    MatchType match() default MatchType.NOT_EMPTY;
 
-    enum BooleanOperator {
-        /**
-         * like sql `select * from t where a = ? AND b = ?`
-         */
-        AND,
 
-        /**
-         * like sql `select * from t where a = ? OR b = ?`
-         */
-        OR
-    }
+    Class<? extends AttributeTransformer> transformer() default AttributeTransformer.class;
 
-    enum Matches {
-        NOT_EMPTY,
-
-        NOT_NULL,
-
-        NOT_ZERO,
-
-        ALWAYS;
-    }
 }
 

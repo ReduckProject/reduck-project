@@ -18,17 +18,17 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,7 +40,7 @@ import static org.springframework.data.jpa.repository.query.QueryUtils.toOrders;
  */
 @SuppressWarnings("all")
 public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extends SimpleJpaRepository implements JpaRepositoryExtend, ApplicationContextAware {
-    private static final int BATCH_SIZE = 20000;
+    private static final int BATCH_SIZE = 1000;
     private final JpaEntityInformation<T, ?> entityInformation;
     private final EntityManager em;
     @Autowired
@@ -122,14 +122,31 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
     @Override
     @SneakyThrows
     public List findAllNoPageWith(Object o, Class returnType) {
-        CriteriaQuery cq = em.getCriteriaBuilder().createQuery(returnType);
-        Root root = cq.from(getDomainClass());
-        cq.multiselect(Arrays.stream(returnType.getDeclaredFields()).map(field -> root.get(field.getName())).collect(Collectors.toList()));
+        CriteriaQuery<Tuple> cq = em.getCriteriaBuilder().createTupleQuery();
+        Root<?> root = cq.from(getDomainClass());
+
+        List<ColumnProjectionDescriptor> descriptors = ColumnProjectionParser.parse(returnType);
+        cq.multiselect(descriptors.stream().map(columnProjectionDescriptor -> columnProjectionDescriptor.selection(root))
+                .collect(Collectors.toList()));
+
         Predicate predicate = new SpecificationResolver(o, getDomainClass()).toPredicate(root, cq, em.getCriteriaBuilder());
         if (predicate != null) {
             cq.where(predicate);
         }
-        return em.createQuery(cq).getResultList();
+        List<Tuple> tuples = em.createQuery(cq).getResultList();
+        List results = new ArrayList();
+
+
+        for(int i =0; i< tuples.size(); i++) {
+            Tuple tuple = tuples.get(i);
+            Object item = returnType.newInstance();
+            for (int j = 0; j < descriptors.size(); j++) {
+                descriptors.get(j).fill(item, tuple.get(j));
+            }
+            results.add(item);
+        }
+
+        return results;
     }
 
     @Override
@@ -174,7 +191,6 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
 
     @Override
     public List executeNativeSql(String sql, Class returnType) {
-//        em.createQuery(sql).getResultList();
         Query query = em.createNativeQuery(sql);
 
         if (!(query instanceof NativeQueryImpl)) {
@@ -219,7 +235,7 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         }
     }
 
-    protected <V, S extends T> TypedQuery<S> getQuery(@Nullable Specification<S> spec,Class<S> domainClass, Class<V> resultType, Sort sort) {
+    protected <V, S extends T> TypedQuery<S> getQuery(@Nullable Specification<S> spec, Class<S> domainClass, Class<V> resultType, Sort sort) {
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<S> query = builder.createQuery(domainClass);
@@ -255,6 +271,7 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
 
         return root;
     }
+
 
     static class QueryFactory {
 

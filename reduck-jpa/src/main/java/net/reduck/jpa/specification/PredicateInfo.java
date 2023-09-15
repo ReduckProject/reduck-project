@@ -11,8 +11,7 @@ import lombok.Getter;
 @Getter
 public class PredicateInfo {
 
-    private final PredicateDescriptor[] descriptors;
+    private final AttributeProjectionDescriptor[] descriptors;
 
     private final boolean distinct;
-
 }

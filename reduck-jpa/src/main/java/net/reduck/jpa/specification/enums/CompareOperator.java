@@ -1,4 +1,4 @@
-package net.reduck.jpa.specification;
+package net.reduck.jpa.specification.enums;
 
 /**
  * @author Reduck

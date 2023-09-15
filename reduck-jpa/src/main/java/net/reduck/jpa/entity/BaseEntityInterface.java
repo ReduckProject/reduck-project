@@ -16,7 +16,7 @@ public interface BaseEntityInterface {
 
     Long setUpdateTime(Long updateTime);
 
-    Boolean getDeleted();
+    boolean isDeleted();
 
 
 }
