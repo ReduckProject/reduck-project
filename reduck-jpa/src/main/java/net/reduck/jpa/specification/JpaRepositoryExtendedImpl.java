@@ -24,7 +24,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -53,12 +52,12 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
     }
 
     @Override
-    public Page findAllWith(PageRequest pageRequest) {
+    public Page findPagedWith(PageRequest pageRequest) {
         return findAll(new SpecificationResolver(pageRequest, getDomainClass()), pageRequest.toPageable());
     }
 
     @Override
-    public PaginationResult findAllWith(PageRequest query, Function transfer) {
+    public PaginationResult findPagedWith(PageRequest query, Function transfer) {
         PaginationResult paginationResult = new PaginationResult().of(
                 findAll(new SpecificationResolver(query, getDomainClass()), query.toPageable())
                 , transfer
@@ -68,9 +67,42 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
     }
 
     @Override
-    public PaginationResult findAllWith(PageRequest query, Class returnType) {
+    @SneakyThrows
+    public PaginationResult findPagedWith(PageRequest query, Class returnType) {
+        CriteriaQuery<Tuple> cq = em.getCriteriaBuilder().createTupleQuery();
+        Root<?> root = cq.from(getDomainClass());
 
-        return null;
+        List<ColumnProjectionDescriptor> descriptors = ColumnProjectionParser.parse(returnType);
+        cq.multiselect(descriptors.stream().map(columnProjectionDescriptor -> columnProjectionDescriptor.selection(root))
+                .collect(Collectors.toList()));
+
+        Specification specification = new SpecificationResolver(query, getDomainClass());
+        Predicate predicate = specification.toPredicate(root, cq, em.getCriteriaBuilder());
+        if (predicate != null) {
+            cq.where(predicate);
+        }
+
+        TypedQuery<Tuple> tupleTypedQuery = em.createQuery(cq);
+        tupleTypedQuery.setFirstResult((query.getPage() - 1) * query.getRows());
+        tupleTypedQuery.setMaxResults(query.getRows());
+
+        List<Tuple> tuples = tupleTypedQuery.getResultList();
+        List results = new ArrayList();
+        for(int i =0; i< tuples.size(); i++) {
+            Tuple tuple = tuples.get(i);
+            Object item = returnType.newInstance();
+            for (int j = 0; j < descriptors.size(); j++) {
+                descriptors.get(j).fill(item, tuple.get(j));
+            }
+            results.add(item);
+        }
+
+        long total = 0;
+        if(tuples.size() >= query.getRows()) {
+            total = executeCountQuery(getCountQuery(specification, getDomainClass()));
+        }
+
+        return new PaginationResult(total, (int) Math.ceil((double) total / (double) query.getRows()), results);
     }
 
     @Override
@@ -79,19 +111,8 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
     }
 
     @Override
-    public List findAllNoPageWith(Object o) {
+    public List findAllWith(Object o) {
         return findAll(new SpecificationResolver(o, getDomainClass()), Pageable.unpaged()).getContent();
-    }
-
-    @Override
-    public List findAllWith(Class selectType, Pageable pageable) {
-        Field[] fields = selectType.getDeclaredFields();
-        return null;
-    }
-
-    @Override
-    public List findAllUnPageWith(Class selectType, Object predicate) {
-        return null;
     }
 
     @Override
@@ -115,13 +136,13 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
     }
 
     @Override
-    public List findAllNoPageWith(Object o, Function transfer) {
-        return (List) findAllNoPageWith(o).stream().map(transfer).collect(Collectors.toList());
+    public List findAllWith(Object o, Function transfer) {
+        return (List) findAllWith(o).stream().map(transfer).collect(Collectors.toList());
     }
 
     @Override
     @SneakyThrows
-    public List findAllNoPageWith(Object o, Class returnType) {
+    public List findAllWith(Object o, Class returnType) {
         CriteriaQuery<Tuple> cq = em.getCriteriaBuilder().createTupleQuery();
         Root<?> root = cq.from(getDomainClass());
 
@@ -294,5 +315,19 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
 
         }
 
+    }
+
+    private static long executeCountQuery(TypedQuery<Long> query) {
+
+        Assert.notNull(query, "TypedQuery must not be null!");
+
+        List<Long> totals = query.getResultList();
+        long total = 0L;
+
+        for (Long element : totals) {
+            total += element == null ? 0 : element;
+        }
+
+        return total;
     }
 }

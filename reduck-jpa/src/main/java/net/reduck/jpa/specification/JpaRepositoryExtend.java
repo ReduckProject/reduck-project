@@ -38,27 +38,6 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      */
     List<T> findAllWithIdsNullable(Iterable<ID> ids);
 
-
-    /**
-     * 分页查询
-     *
-     * @param selectType
-     * @param pageable
-     * @return
-     * @param <T>
-     */
-    <T> List<T> findAllWith(Class<T> selectType, Pageable pageable);
-
-    /**
-     * 非分页查询
-     *
-     * @param selectType
-     * @param predicate
-     * @return
-     * @param <T>
-     */
-    <T> List<T> findAllUnPageWith(Class<T> selectType, Object predicate);
-
     /**
      * 根据ID查询
      *
@@ -75,7 +54,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      *
      * @return
      */
-    List<T> findAllNoPageWith(Object o);
+    List<T> findAllWith(Object o);
 
     /**
      * 字段映射查询，不分页
@@ -87,9 +66,9 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      *
      * @return
      */
-    <R> List<R> findAllNoPageWith(Object o, Function<T, R> transfer);
+    <R> List<R> findAllWith(Object o, Function<T, R> transfer);
 
-    <R> List<R> findAllNoPageWith(Object o, Class<R> returnType);
+    <R> List<R> findAllWith(Object o, Class<R> returnType);
 
     /**
      * 分页查询
@@ -99,7 +78,7 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      *
      * @return
      */
-    <X extends PageRequest> Page<T> findAllWith(X pageRequest);
+    <X extends PageRequest> Page<T> findPagedWith(X pageRequest);
 
     /**
      * 分页查询并转换为指定类型
@@ -111,10 +90,10 @@ public interface JpaRepositoryExtend<T extends BaseEntityInterface, ID> extends 
      *
      * @return
      */
-    <X extends PageRequest, R> PaginationResult<R> findAllWith(X query, Function<T, R> transfer);
+    <X extends PageRequest, R> PaginationResult<R> findPagedWith(X query, Function<T, R> transfer);
 
 
-    <X extends PageRequest, R> PaginationResult<R> findAllWith(X query, Class<R> returnType);
+    <X extends PageRequest, R> PaginationResult<R> findPagedWith(X query, Class<R> returnType);
 
     /**
      * 批量插入

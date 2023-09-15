@@ -83,7 +83,7 @@ public class TestController {
 //        userRepository.findAllByBuilder(SpecificationQueryBuilder.newInstance()
 //                .and("id").operate(OperatorType.IN).value(Arrays.asList(10,11)).match()
 //                .or("username").operate(OperatorType.CONTAIN).value("3").match());
-        return userRepository.findAllNoPageWith(request, UserVO.class);
+        return userRepository.findAllWith(request, UserVO.class);
     }
 
     /**
@@ -124,7 +124,7 @@ public class TestController {
 
     @RequestMapping(value = "/transformer")
     public Object transformer(UserListTO to){
-        return userRepository.findAllNoPageWith(to, UserListVO.class);
+        return userRepository.findAllWith(to, UserListVO.class);
     }
 
     @GetMapping(value = "/nativeQuery")
