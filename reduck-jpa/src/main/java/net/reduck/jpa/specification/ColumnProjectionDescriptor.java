@@ -36,7 +36,7 @@ public class ColumnProjectionDescriptor {
             if (instance == null) {
                 instance = transformer.newInstance();
             }
-            this.descriptor.getWriteMethod().invoke(item, instance.transform(data));
+            this.descriptor.getWriteMethod().invoke(item, instance.toAttribute(data));
         } else {
             this.descriptor.getWriteMethod().invoke(item, data);
         }

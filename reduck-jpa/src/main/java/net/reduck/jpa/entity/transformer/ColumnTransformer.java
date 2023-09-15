@@ -7,5 +7,5 @@ package net.reduck.jpa.entity.transformer;
 @FunctionalInterface
 public interface ColumnTransformer<T, R> {
 
-     R transform(T attribute);
+     R toAttribute(T attribute);
 }

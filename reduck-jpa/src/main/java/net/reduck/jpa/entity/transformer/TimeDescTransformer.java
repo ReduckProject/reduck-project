@@ -10,7 +10,7 @@ import java.util.Date;
 public class TimeDescTransformer implements ColumnTransformer<Long, String> {
     private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Override
-    public String transform(Long attribute) {
+    public String toAttribute(Long attribute) {
         if(attribute == null) {
             return "";
         }
