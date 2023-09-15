@@ -102,9 +102,4 @@ public abstract class BaseEntity implements BaseEntityInterface {
         return null;
     }
 
-    @Override
-    @Transient
-    public Boolean getDeleted() {
-        return null;
-    }
 }

@@ -6,14 +6,14 @@ import net.reduck.jpa.specification.NativeQueryExecutor;
 import net.reduck.jpa.test.entity.PersonalInfo;
 import net.reduck.jpa.test.entity.User;
 import net.reduck.jpa.test.repository.UserRepository;
+import net.reduck.jpa.test.service.TestService;
 import net.reduck.jpa.test.service.TransactionalService;
 import net.reduck.jpa.test.vo.UserListTO;
+import net.reduck.jpa.test.vo.UserListVO;
 import net.reduck.jpa.test.vo.UserVO;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +38,8 @@ public class TestController {
     private final EntityManager entityManager;
     private final TransactionalService transactionalService;
     private final NativeQueryExecutor executor;
+
+    private final TestService testService;
     @Value("${enc.test}")
     private String value;
 
@@ -58,6 +60,16 @@ public class TestController {
 //        throw new RuntimeException("");
         userRepository.executeNativeSql("select * from user", UserVO.class);
         return userRepository.findAll();
+    }
+
+    @GetMapping(value = "/all")
+    public Object load(HttpServletRequest servletRequest, @Validated UserListTO request) {
+        return userRepository.findAll();
+    }
+
+    @GetMapping(value = "/jpa")
+    public Object jpaTest() {
+        return testService.test();
     }
 
     /**
@@ -111,10 +123,8 @@ public class TestController {
     }
 
     @RequestMapping(value = "/transformer")
-    public boolean transformer(){
-        entityManager.createQuery("");
-
-        return true;
+    public Object transformer(UserListTO to){
+        return userRepository.findAllNoPageWith(to, UserListVO.class);
     }
 
     @GetMapping(value = "/nativeQuery")

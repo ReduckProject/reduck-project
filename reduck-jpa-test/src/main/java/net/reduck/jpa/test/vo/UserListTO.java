@@ -1,9 +1,9 @@
 package net.reduck.jpa.test.vo;
 
 import lombok.Data;
-import net.reduck.jpa.specification.CompareOperator;
 import net.reduck.jpa.specification.PageRequest;
-import net.reduck.jpa.specification.annotation.SpecificationQuery;
+import net.reduck.jpa.specification.annotation.AttributeProjection;
+import net.reduck.jpa.specification.enums.CompareOperator;
 import net.reduck.jpa.test.controller.Test2Controller;
 
 import javax.validation.constraints.NotNull;
@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class UserListTO extends PageRequest {
-    @SpecificationQuery(compare = CompareOperator.CONTAINS)
+    @AttributeProjection(compare = CompareOperator.CONTAINS, property = {"username", "password"})
     @NotNull.List({
             @NotNull(groups = Test2Controller.class, message = "SB"),
             @NotNull(groups = UserListTO.class, message = "NSB"),
@@ -22,6 +22,6 @@ public class UserListTO extends PageRequest {
     @NotNull(groups = Test2Controller.class)
     private String username;
 
-    @SpecificationQuery(join = "info", property = "email", compare = CompareOperator.CONTAINS)
-    private String email = "test";
+    @AttributeProjection(join = "info", property = "email", compare = CompareOperator.CONTAINS)
+    private String email;
 }

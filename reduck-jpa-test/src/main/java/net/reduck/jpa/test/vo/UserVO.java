@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.reduck.data.protection.core.ProtectionPassword;
+import net.reduck.jpa.specification.annotation.ColumnProjection;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -18,6 +19,8 @@ import javax.persistence.Version;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserVO {
+
+    @ColumnProjection(name = "username")
     private String username;
 
     @ProtectionPassword
