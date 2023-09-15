@@ -1,5 +1,7 @@
 package net.reduck.jpa.test.entity;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.reduck.jpa.entity.BaseEntityInterface;
 import net.reduck.jpa.entity.BaseEntityListener;
 
@@ -11,8 +13,13 @@ import javax.persistence.*;
  */
 @MappedSuperclass
 @EntityListeners(value = {BaseEntityListener.class})
+@Getter
+@Setter
 public abstract class BaseEntity implements BaseEntityInterface {
 
+    @Id
+    @GeneratedValue
+    private long id;
 
     /**
      * 是否删除
@@ -38,68 +45,5 @@ public abstract class BaseEntity implements BaseEntityInterface {
      */
     @Column(name = "update_time")
     private long updateTime;
-
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    @Override
-    public Long getId() {
-        return this.id;
-    }
-
-    /**
-     * 由子类实现主键
-     *
-     * @return
-     */
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
-
-    @Override
-    public Long getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
-    }
-
-    @Override
-    public Long getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(long updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    @Override
-    public Long setCreateTime(Long createTime) {
-        return null;
-    }
-
-    @Override
-    public Long setUpdateTime(Long updateTime) {
-        return null;
-    }
 
 }

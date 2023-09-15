@@ -30,4 +30,5 @@ public class House extends BaseEntity {
 
     @Crypto
     private String master;
+
 }

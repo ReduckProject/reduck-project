@@ -6,15 +6,15 @@ package net.reduck.jpa.entity;
 
 public interface BaseEntityInterface {
 
-    Long getId();
+    long getId();
 
-    Long getCreateTime();
+    long getCreateTime();
 
-    Long setCreateTime(Long createTime);
+    void setCreateTime(long createTime);
 
-    Long getUpdateTime();
+    long getUpdateTime();
 
-    Long setUpdateTime(Long updateTime);
+    void setUpdateTime(long updateTime);
 
     boolean isDeleted();
 
