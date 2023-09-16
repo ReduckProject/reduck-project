@@ -109,7 +109,7 @@ class SpecificationAnnotationIntrospector {
                 value = invoke(Objects.requireNonNull(BeanUtils.findMethod(target.getClass(), query.castMethod())), target);
             }
 
-            if(query.transformer() != null && query.transformer() == AttributeTransformer.class) {
+            if(query.transformer() != null && query.transformer() != AttributeTransformer.class) {
                 value = query.transformer().newInstance().toColumn(value);
             }
 
