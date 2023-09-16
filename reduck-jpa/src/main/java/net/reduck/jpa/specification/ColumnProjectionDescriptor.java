@@ -6,6 +6,8 @@ import lombok.experimental.Accessors;
 import net.reduck.jpa.entity.transformer.ColumnTransformer;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import java.beans.PropertyDescriptor;
@@ -25,6 +27,8 @@ public class ColumnProjectionDescriptor {
     private String[] join;
 
     PropertyDescriptor descriptor;
+
+    private JoinType joinType = JoinType.LEFT;
 
     Class<? extends ColumnTransformer> transformer;
 
@@ -51,7 +55,7 @@ public class ColumnProjectionDescriptor {
 
         if (join != null) {
             for (String relation : join) {
-                path = path == null ? root.get(relation) : path.get(relation);
+                path = path == null ? root.join(relation, joinType) : ((Join)path).join(relation, joinType);
             }
         }
 

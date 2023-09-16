@@ -69,6 +69,7 @@ public class AttributeProjectionParser {
                     ColumnProjectionDescriptor columnProjectionDescriptor = projectionDescriptorMap.get(field.getName());
                     columnProjectionDescriptor.setName(columnProjection.name())
                             .setJoin(columnProjection.join())
+                            .setJoinType(columnProjection.JoinType())
                             .setTransformer(columnProjection.transformer());
                 }
             }
