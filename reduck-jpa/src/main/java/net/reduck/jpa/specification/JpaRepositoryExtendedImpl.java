@@ -69,8 +69,15 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
     @Override
     @SneakyThrows
     public PaginationResult findPagedWith(PageRequest query, Class returnType) {
-        CriteriaQuery<Tuple> cq = em.getCriteriaBuilder().createTupleQuery();
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> cq = criteriaBuilder.createTupleQuery();
         Root<?> root = cq.from(getDomainClass());
+
+        Pageable pageable = query.toPageable();
+
+        if (pageable.getSort().isSorted()) {
+            cq.orderBy(toOrders(pageable.getSort(), root, criteriaBuilder));
+        }
 
         List<ColumnProjectionDescriptor> descriptors = ColumnProjectionParser.parse(returnType);
         cq.multiselect(descriptors.stream().map(columnProjectionDescriptor -> columnProjectionDescriptor.selection(root))
@@ -78,6 +85,7 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
 
         Specification specification = new SpecificationResolver(query, getDomainClass());
         Predicate predicate = specification.toPredicate(root, cq, em.getCriteriaBuilder());
+
         if (predicate != null) {
             cq.where(predicate);
         }
@@ -100,6 +108,8 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         long total = 0;
         if(tuples.size() >= query.getRows()) {
             total = executeCountQuery(getCountQuery(specification, getDomainClass()));
+        }else {
+            total = (query.getPage() -1) * query.getRows() + tuples.size();
         }
 
         return new PaginationResult(total, (int) Math.ceil((double) total / (double) query.getRows()), results);
