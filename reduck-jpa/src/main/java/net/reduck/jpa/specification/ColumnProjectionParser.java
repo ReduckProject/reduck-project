@@ -87,4 +87,5 @@ public class ColumnProjectionParser {
                 .filter(propertyDescriptor -> propertyDescriptor.getWriteMethod() != null && propertyDescriptor.getReadMethod() != null)
                 .collect(Collectors.toMap(PropertyDescriptor::getName, propertyDescriptor -> propertyDescriptor));
     }
+
 }

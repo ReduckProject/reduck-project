@@ -47,6 +47,14 @@ class SpecificationResolver<T> implements Specification<T> {
         this.target = queryCondition;
     }
 
+    public SpecificationResolver(Object queryCondition, Class<T> entityClass, Map<String, Join> joins) {
+        this.targetClass = queryCondition.getClass();
+        this.entityReadMethods = getPropertiesAndGetter(entityClass);
+        this.conditions = new ArrayList<>(getQueryDescriptors(queryCondition));
+        this.target = queryCondition;
+        this.joinMap.putAll(joins);
+    }
+
     public SpecificationResolver(List<AttributeProjectionDescriptor> queryCondition, Class<T> entityClass) {
         this.targetClass = Void.class;
         this.entityReadMethods = getPropertiesAndGetter(entityClass);
@@ -247,21 +255,7 @@ class SpecificationResolver<T> implements Specification<T> {
      * @return
      */
     private Join getJoin(Root root, String[] joinNames, JoinType joinType) {
-        StringBuilder sb = new StringBuilder();
-        Join join = null;
-
-        for (String joinName : joinNames) {
-            sb.append(joinName).append(".");
-            if (!joinMap.containsKey(sb.toString())) {
-                if (join == null) {
-                    joinMap.put(sb.toString(), root.join(joinName, joinType));
-                } else {
-                    joinMap.put(sb.toString(), join.join(joinName, joinType));
-                }
-            }
-            join = joinMap.get(sb.toString());
-        }
-        return join;
+        return JoinParser.getJoin(root, joinNames, joinType, joinMap);
     }
 
     private Predicate getMultipleValuePredicate(AttributeProjectionDescriptor condition, CriteriaBuilder criteriaBuilder, Root<T> root) {

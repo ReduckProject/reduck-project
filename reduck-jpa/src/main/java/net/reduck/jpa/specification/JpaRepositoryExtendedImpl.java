@@ -19,15 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -73,17 +67,18 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         CriteriaQuery<Tuple> cq = criteriaBuilder.createTupleQuery();
         Root<?> root = cq.from(getDomainClass());
 
-        Pageable pageable = query.toPageable();
+        Map<String, Join> joinMap = new HashMap<>();
 
+        Pageable pageable = query.toPageable();
         if (pageable.getSort().isSorted()) {
             cq.orderBy(toOrders(pageable.getSort(), root, criteriaBuilder));
         }
 
         List<ColumnProjectionDescriptor> descriptors = ColumnProjectionParser.parse(returnType);
-        cq.multiselect(descriptors.stream().map(columnProjectionDescriptor -> columnProjectionDescriptor.selection(root))
+        cq.multiselect(descriptors.stream().map(columnProjectionDescriptor -> columnProjectionDescriptor.selection(root, joinMap))
                 .collect(Collectors.toList()));
 
-        Specification specification = new SpecificationResolver(query, getDomainClass());
+        Specification specification = new SpecificationResolver(query, getDomainClass(), joinMap);
         Predicate predicate = specification.toPredicate(root, cq, em.getCriteriaBuilder());
 
         if (predicate != null) {
@@ -156,11 +151,13 @@ public class JpaRepositoryExtendedImpl<T extends BaseEntityInterface, ID> extend
         CriteriaQuery<Tuple> cq = em.getCriteriaBuilder().createTupleQuery();
         Root<?> root = cq.from(getDomainClass());
 
+        Map<String, Join> joinMap = new HashMap<>();
+
         List<ColumnProjectionDescriptor> descriptors = ColumnProjectionParser.parse(returnType);
-        cq.multiselect(descriptors.stream().map(columnProjectionDescriptor -> columnProjectionDescriptor.selection(root))
+        cq.multiselect(descriptors.stream().map(columnProjectionDescriptor -> columnProjectionDescriptor.selection(root, joinMap))
                 .collect(Collectors.toList()));
 
-        Predicate predicate = new SpecificationResolver(o, getDomainClass()).toPredicate(root, cq, em.getCriteriaBuilder());
+        Predicate predicate = new SpecificationResolver(o, getDomainClass(), joinMap).toPredicate(root, cq, em.getCriteriaBuilder());
         if (predicate != null) {
             cq.where(predicate);
         }

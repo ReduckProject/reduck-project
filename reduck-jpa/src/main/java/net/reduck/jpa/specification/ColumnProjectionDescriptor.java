@@ -11,6 +11,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import java.beans.PropertyDescriptor;
+import java.util.Map;
 
 /**
  * @author Gin
@@ -50,6 +51,14 @@ public class ColumnProjectionDescriptor {
         return StringUtils.hasText(this.name) ? this.name : fieldName;
     }
 
+    /**
+     *
+     * @param root
+     * @return
+     *
+     * @deprecated 存在多次join同一实体的问题
+     */
+    @Deprecated
     public Path<?> selection(Root<?> root) {
         Path<?> path = null;
 
@@ -61,4 +70,15 @@ public class ColumnProjectionDescriptor {
 
         return path == null ? root.get(getColumnName()) : path.get(getColumnName());
     }
+
+    public Path<?> selection(Root<?> root, Map<String, Join> joinMap) {
+
+        if (join != null && join.length > 0) {
+            Join joinTable = JoinParser.getJoin(root, join, joinType, joinMap);
+            return joinTable.get(getColumnName());
+        }
+
+        return root.get(getColumnName());
+    }
+
 }
