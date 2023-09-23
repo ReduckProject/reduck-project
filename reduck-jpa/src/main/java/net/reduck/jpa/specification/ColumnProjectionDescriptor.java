@@ -37,6 +37,10 @@ public class ColumnProjectionDescriptor {
 
     @SneakyThrows
     public void fill(Object item, Object data) {
+        if(data == null && descriptor.getPropertyType().isPrimitive()) {
+            return;
+        }
+
         if (this.getTransformer() != null && this.getTransformer() != ColumnTransformer.class) {
             if (instance == null) {
                 instance = transformer.newInstance();
