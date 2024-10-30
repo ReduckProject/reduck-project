@@ -1,5 +1,6 @@
 package net.reduck.data.protection.internal;
 
+import lombok.SneakyThrows;
 import sun.security.pkcs.PKCS8Key;
 import sun.security.rsa.RSAPrivateCrtKeyImpl;
 import sun.security.rsa.RSAPrivateKeyImpl;
@@ -12,6 +13,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 /**
  * @author Gin
@@ -31,11 +34,7 @@ public class RsaUtils {
     }
 
     public static byte[] encrypt(byte[] data, byte[] key) {
-        try {
-            return encrypt(data, new RSAPublicKeyImpl(key));
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }
+        return encrypt(data, getPublicKey(key));
     }
 
 
@@ -63,6 +62,20 @@ public class RsaUtils {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(keyLength, new SecureRandom());
         return keyPairGenerator.generateKeyPair();
+    }
+
+    @SneakyThrows
+    public static PrivateKey getPrivateKey(byte[] bytes) {
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(spec);
+    }
+
+    @SneakyThrows
+    public static PublicKey getPublicKey(byte[] bytes) {
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(spec);
     }
 
     public static void main(String[] args) throws Exception {

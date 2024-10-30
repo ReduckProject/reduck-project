@@ -3,6 +3,7 @@ package net.reduck.jpa;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.jpa.event.internal.CallbacksFactory;
 import org.hibernate.jpa.event.spi.CallbackRegistry;
+import org.hibernate.jpa.event.spi.CallbackType;
 import org.hibernate.metamodel.internal.MetamodelImpl;
 import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,7 +30,68 @@ public class BatchRepository {
 
     public BatchRepository(LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean, EntityManagerFactory factory, JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.callbackRegistry = CallbacksFactory.buildCallbackRegistry((SessionFactoryImpl) localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory());
+//        this.callbackRegistry = CallbacksFactory.buildCallbackRegistry((SessionFactoryImpl) localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory());
+        this.callbackRegistry = new CallbackRegistry() {
+            @Override
+            public boolean hasRegisteredCallbacks(Class entityClass, CallbackType callbackType) {
+                return false;
+            }
+
+            @Override
+            public void preCreate(Object entity) {
+
+            }
+
+            @Override
+            public void postCreate(Object entity) {
+
+            }
+
+            @Override
+            public boolean preUpdate(Object entity) {
+                return false;
+            }
+
+            @Override
+            public void postUpdate(Object entity) {
+
+            }
+
+            @Override
+            public void preRemove(Object entity) {
+
+            }
+
+            @Override
+            public void postRemove(Object entity) {
+
+            }
+
+            @Override
+            public boolean postLoad(Object entity) {
+                return false;
+            }
+
+            @Override
+            public boolean hasPostCreateCallbacks(Class entityClass) {
+                return false;
+            }
+
+            @Override
+            public boolean hasPostUpdateCallbacks(Class entityClass) {
+                return false;
+            }
+
+            @Override
+            public boolean hasPostRemoveCallbacks(Class entityClass) {
+                return false;
+            }
+
+            @Override
+            public boolean hasRegisteredCallbacks(Class entityClass, Class annotationClass) {
+                return false;
+            }
+        };
         this.metamodel = ((MetamodelImpl) factory.getMetamodel());
     }
 
